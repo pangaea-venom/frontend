@@ -1,24 +1,17 @@
-import React, {
-    useCallback,
-    useEffect,
-    useState,
-} from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { useNavigate } from 'react-router-dom'
 import { Profile } from 'src/routes/App/Profile'
-import { VenomConnect } from "venom-connect";
-import { ProviderRpcClient } from "everscale-inpage-provider";
-import { EverscaleStandaloneClient } from "everscale-standalone-client";
+import { VenomConnect } from 'venom-connect'
+import { ProviderRpcClient } from 'everscale-inpage-provider'
+import { EverscaleStandaloneClient } from 'everscale-standalone-client'
 
 // Venom Wallet Connect
 // https://github.com/web3sp/venom-connect/blob/main/examples/react/src/App.tsx
 
 function App() {
-    const [allAccounts, setAllAccounts] = useState<[]>(
-        []
-    )
-    const [activeAccount, setActiveAccount] =
-        useState<null>(null)
+    const [allAccounts, setAllAccounts] = useState<[]>([])
+    const [activeAccount, setActiveAccount] = useState<null>(null)
 
     const [input, setInput] = useState<{
         username: string
@@ -28,47 +21,49 @@ function App() {
 
     const account = useAccountStore((state) => state.account)
     const setAccount = useAccountStore((state) => state.setAccount)
-    
-    const [loading, setLoading] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [venomConnect, setVenomConnect] = useState<any>();
-    const [venomProvider, setVenomProvider] = useState<any>();
 
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(false)
+    const [venomConnect, setVenomConnect] = useState<any>()
+    const [venomProvider, setVenomProvider] = useState<any>()
 
-    const standaloneFallback = () =>
-        EverscaleStandaloneClient.create({
+    const navigate = useNavigate()
+
+    const standaloneFallback = async () =>
+        await EverscaleStandaloneClient.create({
             connection: {
                 id: 1000,
-                group: "venom_testnet",
-                type: "jrpc",
+                group: 'venom_testnet',
+                type: 'jrpc',
                 data: {
-                    endpoint: "https://jrpc.venom.foundation/rpc",
+                    endpoint: 'https://jrpc.venom.foundation/rpc',
                 },
             },
-        });
-    
+        })
+
     const initVenomConnect = async () => {
         return new VenomConnect({
-            theme: "dark",
+            theme: 'dark',
             checkNetworkId: 1000,
             providersOptions: {
                 venomwallet: {
                     links: {
                         extension: [
                             {
-                                browser: "chrome",
-                                link: "https://chrome.google.com/webstore/detail/venomwallet/ojggmchlghnjlapmfbnjholfjkiidbch"
-                            }
-                        ]
+                                browser: 'chrome',
+                                link: 'https://chrome.google.com/webstore/detail/venomwallet/ojggmchlghnjlapmfbnjholfjkiidbch',
+                            },
+                        ],
                     },
                     walletWaysToConnect: [
                         {
                             package: ProviderRpcClient,
                             packageOptions: {
                                 fallback:
-                                    VenomConnect.getPromise("venomwallet", "extension") ||
-                                    (() => Promise.reject()),
+                                    VenomConnect.getPromise(
+                                        'venomwallet',
+                                        'extension'
+                                    ) || (async () => await Promise.reject()),
                                 forceUseFallback: true,
                             },
                             packageOptionsStandalone: {
@@ -76,50 +71,50 @@ function App() {
                                 forceUseFallback: true,
                             },
                             // Setup
-                            id: "extension",
-                            type: "extension",
-                        }
+                            id: 'extension',
+                            type: 'extension',
+                        },
                     ],
                     defaultWalletWaysToConnect: [
                         // List of enabled options
-                        "mobile",
-                        "ios",
-                        "android",
+                        'mobile',
+                        'ios',
+                        'android',
                     ],
-                }
-            }
-        });
-    };
+                },
+            },
+        })
+    }
 
     const getAddress = async (provider: any) => {
-        const providerState = await provider?.getProviderState?.();
+        const providerState = await provider?.getProviderState?.()
 
         const address =
-            providerState?.permissions.accountInteraction?.address.toString();
+            providerState?.permissions.accountInteraction?.address.toString()
 
-        return address;
-    };
+        return address
+    }
 
     const checkAuth = async (_venomConnect: any) => {
-        const auth = await _venomConnect?.checkAuth();
-        if (auth) await getAddress(_venomConnect);
-    };
+        const auth = await _venomConnect?.checkAuth()
+        if (auth) await getAddress(_venomConnect)
+    }
 
     const onInitButtonClick = async () => {
-        const venomConnect = await initVenomConnect();
+        const venomConnect = await initVenomConnect()
         // you can save venomConnect here
 
-        setVenomConnect(venomConnect);
+        setVenomConnect(venomConnect)
         // and check the Authorization
-        await checkAuth(venomConnect);
-    };
+        await checkAuth(venomConnect)
+    }
 
     const onConnectButtonClick = async () => {
-        venomConnect?.connect();
-    };
-    
+        venomConnect?.connect()
+    }
+
     useEffect(() => {
-        onInitButtonClick();
+        onInitButtonClick()
     }, [])
 
     useEffect(() => {
@@ -204,7 +199,8 @@ function App() {
                                         'justify-center space-x-[12px] rounded-lg'
                                     }
                                     style={{
-                                        background: "linear-gradient(90deg, #1C23A5 0%, #4EA680 100%)",
+                                        background:
+                                            'linear-gradient(90deg, #1C23A5 0%, #4EA680 100%)',
                                     }}
                                     onClick={onConnectButtonClick}
                                 >

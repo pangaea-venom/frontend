@@ -9,7 +9,7 @@ module.exports = {
                 charcoal: '#5B616D',
                 finegray: '#B0B1B7',
                 slate: {
-                    50: "#F8FAFC",
+                    50: '#F8FAFC',
                     300: '#CBD5E1',
                 },
                 blue: {
