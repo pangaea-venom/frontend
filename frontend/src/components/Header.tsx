@@ -50,7 +50,11 @@ export const Header = () => {
                                 <button
                                     key={index}
                                     disabled={account == null}
-                                    className={`text-[14px] text-slate-50`}
+                                    className={`text-[14px] text-slate-50 ${
+                                        activeTab === tab.value
+                                            ? 'font-bold'
+                                            : ''
+                                    }}`}
                                     onClick={() => {
                                         navigate(`/${tab.value}`)
                                     }}

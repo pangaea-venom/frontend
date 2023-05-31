@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { useNavigate } from 'react-router-dom'
 import { Profile } from 'src/routes/App/Profile'
@@ -10,9 +10,10 @@ import { EverscaleStandaloneClient } from 'everscale-standalone-client'
 // https://github.com/web3sp/venom-connect/blob/main/examples/react/src/App.tsx
 
 function App() {
-    const [allAccounts, setAllAccounts] = useState<[]>([])
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [activeAccount, setActiveAccount] = useState<null>(null)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [input, setInput] = useState<{
         username: string
     }>({
@@ -22,10 +23,11 @@ function App() {
     const account = useAccountStore((state) => state.account)
     const setAccount = useAccountStore((state) => state.setAccount)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loggedIn, setLoggedIn] = useState(false)
     const [venomConnect, setVenomConnect] = useState<any>()
-    const [venomProvider, setVenomProvider] = useState<any>()
 
     const navigate = useNavigate()
 
@@ -63,6 +65,7 @@ function App() {
                                     VenomConnect.getPromise(
                                         'venomwallet',
                                         'extension'
+                                        // eslint-disable-next-line
                                     ) || (async () => await Promise.reject()),
                                 forceUseFallback: true,
                             },
