@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { useNavigate } from 'react-router-dom'
-import { Profile } from 'src/routes/App/Profile'
 import { VenomConnect } from 'venom-connect'
 import { ProviderRpcClient } from 'everscale-inpage-provider'
 import { EverscaleStandaloneClient } from 'everscale-standalone-client'
@@ -10,23 +9,15 @@ import { EverscaleStandaloneClient } from 'everscale-standalone-client'
 // https://github.com/web3sp/venom-connect/blob/main/examples/react/src/App.tsx
 
 function App() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [activeAccount, setActiveAccount] = useState<null>(null)
+    const [isConnected, setIsConnected] = useState<boolean>(false)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [input, setInput] = useState<{
-        username: string
-    }>({
-        username: '',
-    })
+    const [username, setUsername] = useState<string>('')
 
     const account = useAccountStore((state) => state.account)
     const setAccount = useAccountStore((state) => state.setAccount)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [loggedIn, setLoggedIn] = useState(false)
     const [venomConnect, setVenomConnect] = useState<any>()
 
     const navigate = useNavigate()
@@ -106,7 +97,6 @@ function App() {
     const onInitButtonClick = async () => {
         const venomConnect = await initVenomConnect()
         // you can save venomConnect here
-
         setVenomConnect(venomConnect)
         // and check the Authorization
         await checkAuth(venomConnect)
@@ -120,22 +110,30 @@ function App() {
         onInitButtonClick()
     }, [])
 
-    useEffect(() => {
-        let timeoutId: NodeJS.Timeout | undefined
+    const onConnect = async (provider: ProviderRpcClient | undefined) => {
+        // you can save the provider here
+        setIsConnected(true)
+    }
 
-        if (loggedIn) {
-            setAccount(activeAccount)
-            timeoutId = setTimeout(() => {
-                navigate('/explore')
-            }, 3500)
-        }
+    useEffect(() => {
+        const off = venomConnect?.on('connect', onConnect)
 
         return () => {
-            if (timeoutId != null) {
-                clearTimeout(timeoutId)
-            }
+            off?.()
         }
-    }, [loggedIn])
+    }, [venomConnect])
+
+    const handleSubmit = () => {
+        setAccount({
+            username,
+        })
+    }
+
+    useEffect(() => {
+        if (account) {
+            navigate('/townhall', { replace: true })
+        }
+    }, [account])
 
     return (
         <div className={'container mx-auto flex flex-col'}>
@@ -144,8 +142,44 @@ function App() {
                     'mt-[180px] flex flex-col items-center space-y-[36px]'
                 }
             >
-                {loggedIn ? (
-                    <Profile username={account?.meta.name} />
+                {isConnected ? (
+                    <>
+                        <div className={'flex flex-col items-start space-y-10'}>
+                            <p
+                                className={
+                                    'text-[36px] leading-[45px] text-left font-semibold'
+                                }
+                            >
+                                Lemme know <br />
+                                your name
+                            </p>
+                            <input
+                                onChange={(e) => {
+                                    setUsername(e.target.value)
+                                }}
+                                type="text"
+                                name={'username'}
+                                placeholder={'How should I call you?'}
+                                required
+                                className={
+                                    'appearance-none w-[400px] border-slate-500 border-b text-[20px] py-2 ' +
+                                    'leading-[30px] placeholder:text-slate-600 text-slate-50 bg-transparent'
+                                }
+                            />
+                            <button
+                                className={
+                                    'appearance-none bg-sky-500 w-[104px] py-2 rounded-md ' +
+                                    'text-white font-medium text-[16px] disabled:bg-slate-700 ' +
+                                    'disabled:cursor-not-allowed disabled:text-slate-500'
+                                }
+                                disabled={!username}
+                                type={'submit'}
+                                onClick={handleSubmit}
+                            >
+                                Join
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <>
                         <div

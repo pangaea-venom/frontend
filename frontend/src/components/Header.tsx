@@ -47,61 +47,53 @@ export const Header = () => {
                         </button>
                         <div className={'flex flex-row space-x-[36px]'}>
                             {tabs.map((tab, index) => (
-                                <button
-                                    key={index}
-                                    disabled={account == null}
-                                    className={`text-[14px] text-slate-50 ${
-                                        activeTab === tab.value
-                                            ? 'font-bold'
-                                            : ''
-                                    }}`}
-                                    onClick={() => {
-                                        navigate(`/${tab.value}`)
-                                    }}
-                                >
-                                    {tab.name}
-                                </button>
+                                <div key={index} className={'relative'}>
+                                    <button
+                                        disabled={account === null}
+                                        className={`text-[14px] text-slate-50`}
+                                        onClick={() => {
+                                            navigate(`/${tab.value}`)
+                                        }}
+                                    >
+                                        {tab.name}
+                                    </button>
+                                    {activeTab === tab.value ? (
+                                        <div
+                                            className={
+                                                'absolute -bottom-[3px] left-0 w-full h-[2px] bg-slate-50'
+                                            }
+                                        />
+                                    ) : null}
+                                </div>
                             ))}
                         </div>
                     </div>
                     {account != null ? (
                         <div
                             className={
-                                'flex flex-row space-x-[32px] items-center'
+                                'flex flex-row space-x-[20px] items-center'
                             }
                         >
                             <button
                                 className={
-                                    'border-[#B0B1B7] border-[1px] rounded-[18px] flex flex-row ' +
-                                    'px-[16px] py-[9px] text-[14px] leading-[18px]'
+                                    'flex flex-row items-center space-x-1.5 py-2 ' +
+                                    'px-[10px] bg-slate-800 rounded border border-slate-700'
                                 }
                             >
-                                + Create
-                            </button>
-                            <div
-                                className={
-                                    'flex flex-row space-x-[20px] items-center'
-                                }
-                            >
-                                <button>
-                                    <img src={'/ic_bell.svg'} />
-                                </button>
-                                <button
+                                <div
+                                    style={{
+                                        background: '#BB2A2A',
+                                    }}
+                                    className={'w-6 h-6 rounded-full'}
+                                />
+                                <p
                                     className={
-                                        'flex flex-row items-center space-x-[6px] py-[6px] ' +
-                                        'px-[10px] bg-[#282828] rounded-[4px]'
+                                        'text-[14px] text-white font-medium min-w-[120px] text-center'
                                     }
                                 >
-                                    <img src={'/profile.svg'} />
-                                    <p
-                                        className={
-                                            'text-[14px] text-white font-medium'
-                                        }
-                                    >
-                                        {account.meta.name}
-                                    </p>
-                                </button>
-                            </div>
+                                    {account.username}
+                                </p>
+                            </button>
                         </div>
                     ) : null}
                 </div>

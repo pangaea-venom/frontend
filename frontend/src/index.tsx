@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { Root } from 'src/Root'
 import { toast, ToastContainer } from 'react-toastify'
 
 import 'react-toastify/dist/ReactToastify.css'
 
 import { ErrorPage } from 'src/routes/App/ErrorPage'
+import { Townhall } from 'src/routes/Townhall/Townhall'
+import { OpenedTasks } from 'src/routes/Townhall/OpenedTasks'
+import { Proposal } from 'src/routes/Townhall/Proposal'
 
 const router = createBrowserRouter([
     {
@@ -21,24 +24,24 @@ const router = createBrowserRouter([
                 path: '/',
                 element: <App />,
             },
-            // {
-            //     path: '/townhall',
-            //     element: <Circle />,
-            //     children: [
-            //         {
-            //             index: true,
-            //             element: <Navigate to={'/townhall/opened-tasks'} />,
-            //         },
-            //         {
-            //             path: 'opened-tasks',
-            //             element: <CircleOverview />,
-            //         },
-            //         {
-            //             path: 'proposal',
-            //             element: <CircleMyContributions />,
-            //         },
-            //     ],
-            // },
+            {
+                path: '/townhall',
+                element: <Townhall />,
+                children: [
+                    {
+                        index: true,
+                        element: <Navigate to={'/townhall/opened-tasks'} />,
+                    },
+                    {
+                        path: 'opened-tasks',
+                        element: <OpenedTasks />,
+                    },
+                    {
+                        path: 'proposal',
+                        element: <Proposal />,
+                    },
+                ],
+            },
             // {
             //     path: '/workspace',
             //     element: <Circle />,

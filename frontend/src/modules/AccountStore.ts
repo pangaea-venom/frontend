@@ -1,8 +1,12 @@
 import { create } from 'zustand'
 
+interface Account {
+    username: string
+}
+
 interface AccountStore {
-    account: any | null
-    setAccount: (account: any | null) => void
+    account: Account | null
+    setAccount: (account: Account | null) => void
 }
 
 export const useAccountStore = create<AccountStore>()((set) => ({
