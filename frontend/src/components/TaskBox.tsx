@@ -4,17 +4,25 @@ import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { VenomLabel } from 'src/components/VenomLabel'
+import { useNavigate } from 'react-router-dom'
 
 interface TaskBoxProps {
     task: Task
 }
 
 export const TaskBox = ({ task }: TaskBoxProps) => {
+    const navigate = useNavigate()
+
+    const handleClick = () => {
+        navigate(`/townhall/tasks/${task.id}`)
+    }
+
     return (
         <div
+            onClick={handleClick}
             className={
                 'flex flex-col w-full space-y-5 rounded-lg ' +
-                'bg-slate-800 p-5 pb-6'
+                'bg-slate-800 p-5 pb-6 cursor-pointer hover:opacity-80'
             }
         >
             <div className={'flex flex-col space-y-4'}>

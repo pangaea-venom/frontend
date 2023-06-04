@@ -19,6 +19,7 @@ import { Assigned } from 'src/routes/Workspace/Assigned'
 import { Result } from 'src/routes/Workspace/Result'
 import { ToReview } from 'src/routes/Workspace/ToReview'
 import { MyProposal } from 'src/routes/Workspace/MyProposal'
+import { TaskTemplate } from 'src/routes/Townhall/TaskTemplate'
 
 const router = createBrowserRouter([
     {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
                         element: <Proposal />,
                     },
                 ],
+            },
+            {
+                path: '/townhall/tasks/:taskId',
+                element: <TaskTemplate />,
             },
             {
                 path: '/workspace',
