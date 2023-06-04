@@ -3,6 +3,7 @@ import { type Task } from 'src/types/task'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
+import { VenomLabel } from 'src/components/VenomLabel'
 
 interface TaskBoxProps {
     task: Task
@@ -44,17 +45,7 @@ export const TaskBox = ({ task }: TaskBoxProps) => {
                 <p className={'text-[16px] leading-[20px] text-slate-400'}>
                     Bounty
                 </p>
-                <div className={'flex flex-row items-center space-x-2'}>
-                    <img src={'/venom-blue.svg'} />
-                    <p
-                        className={
-                            'text-[20px] leading-[25px] text-slate-50 font-medium'
-                        }
-                    >
-                        <span className={'text-lime-400'}>{task.bounty}</span>{' '}
-                        Venom
-                    </p>
-                </div>
+                <VenomLabel amount={task.bounty} isSmall />
             </div>
         </div>
     )

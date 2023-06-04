@@ -2,12 +2,13 @@ import React from 'react'
 import { ProposalListItem } from 'src/components/ProposalListItem'
 import { ProposalStatus } from 'src/types/proposal'
 
-export const Proposal = () => {
+export const MyProposal = () => {
     return (
-        <div className={'flex flex-col space-y-2'}>
-            {Array.from({ length: 6 }).map((_, index) => (
+        <div className="flex flex-col space-y-2">
+            {Array.from({ length: 3 }).map((_, index) => (
                 <ProposalListItem
                     key={index}
+                    isMine
                     proposal={{
                         id: index,
                         title: 'Official Toyota logo usage at ‘Toyota Car Exhibition’',

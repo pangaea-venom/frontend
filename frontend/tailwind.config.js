@@ -32,11 +32,16 @@ module.exports = {
                 red: {
                     primary: '#E82A00',
                     secondary: '#FFE9E9',
+                    400: '#F87171',
+                },
+                amber: {
+                    300: '#FCD34D',
                 },
                 green: {
                     primary: '#103B37',
                     secondary: '#E6EDED',
                     400: '#4ADE80',
+                    300: '#86EFAC',
                 },
                 lime: {
                     400: '#A3E635',

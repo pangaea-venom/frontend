@@ -13,6 +13,12 @@ import { ErrorPage } from 'src/routes/App/ErrorPage'
 import { Townhall } from 'src/routes/Townhall/Townhall'
 import { OpenedTasks } from 'src/routes/Townhall/OpenedTasks'
 import { Proposal } from 'src/routes/Townhall/Proposal'
+import { Workspace } from 'src/routes/Workspace/Workspace'
+import { MyTasks } from 'src/routes/Workspace/MyTasks'
+import { Assigned } from 'src/routes/Workspace/Assigned'
+import { Result } from 'src/routes/Workspace/Result'
+import { ToReview } from 'src/routes/Workspace/ToReview'
+import { MyProposal } from 'src/routes/Workspace/MyProposal'
 
 const router = createBrowserRouter([
     {
@@ -42,24 +48,46 @@ const router = createBrowserRouter([
                     },
                 ],
             },
-            // {
-            //     path: '/workspace',
-            //     element: <Circle />,
-            //     children: [
-            //         {
-            //             index: true,
-            //             element: <Navigate to={'/townhall/opened-tasks'} />,
-            //         },
-            //         {
-            //             path: 'my-tasks',
-            //             element: <CircleOverview />,
-            //         },
-            //         {
-            //             path: 'my-proposal',
-            //             element: <CircleMyContributions />,
-            //         },
-            //     ],
-            // },
+            {
+                path: '/workspace',
+                element: <Workspace />,
+                children: [
+                    {
+                        index: true,
+                        element: <Navigate to={'/workspace/my-tasks'} />,
+                    },
+                    {
+                        path: 'my-tasks',
+                        element: <MyTasks />,
+                        children: [
+                            {
+                                index: true,
+                                element: (
+                                    <Navigate
+                                        to={'/workspace/my-tasks/assigned'}
+                                    />
+                                ),
+                            },
+                            {
+                                path: 'assigned',
+                                element: <Assigned />,
+                            },
+                            {
+                                path: 'result',
+                                element: <Result />,
+                            },
+                            {
+                                path: 'to-review',
+                                element: <ToReview />,
+                            },
+                        ],
+                    },
+                    {
+                        path: 'my-proposal',
+                        element: <MyProposal />,
+                    },
+                ],
+            },
         ],
     },
 ])

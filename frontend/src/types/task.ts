@@ -6,6 +6,14 @@ export const TaskStatus = {
 // eslint-disable-next-line
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
 
+export const TaskResultStatus = {
+    Accepted: 'Accepted',
+    Rejected: 'Rejected',
+}
+
+// eslint-disable-next-line
+export type TaskResultStatus = (typeof TaskResultStatus)[keyof typeof TaskResultStatus]
+
 export interface Task {
     id: number
     title: string
@@ -14,4 +22,5 @@ export interface Task {
     bounty: number
     memberAmount: number
     dueDate: string
+    result?: TaskResultStatus
 }
