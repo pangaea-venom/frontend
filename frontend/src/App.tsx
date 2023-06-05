@@ -12,6 +12,10 @@ function App() {
     const [isConnected, setIsConnected] = useState<boolean>(false)
 
     const [username, setUsername] = useState<string>('')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [address, setAddress] = useState<string | undefined>(undefined)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [balance, setBalance] = useState<string | undefined>(undefined)
 
     const account = useAccountStore((state) => state.account)
     const setAccount = useAccountStore((state) => state.setAccount)
@@ -80,7 +84,7 @@ function App() {
         })
     }
 
-    const getAddress = async (provider: any) => {
+    const getAddress = async (provider: ProviderRpcClient) => {
         const providerState = await provider?.getProviderState?.()
 
         const address =
@@ -110,9 +114,36 @@ function App() {
         onInitButtonClick()
     }, [])
 
+    const getBalance = async (provider: any, _address: string) => {
+        try {
+            const providerBalance = await provider?.getBalance?.(_address)
+
+            return providerBalance
+        } catch (error) {
+            return undefined
+        }
+    }
+
+    const check = async (_provider: any) => {
+        const _address = _provider ? await getAddress(_provider) : undefined
+        const _balance =
+            _provider && _address
+                ? await getBalance(_provider, _address)
+                : undefined
+
+        setAddress(_address)
+        setBalance(_balance)
+
+        if (_provider && _address) {
+            setIsConnected(true)
+            setTimeout(() => {
+                check(_provider)
+            }, 7000)
+        }
+    }
+
     const onConnect = async (provider: ProviderRpcClient | undefined) => {
-        // you can save the provider here
-        setIsConnected(true)
+        check(provider)
     }
 
     useEffect(() => {

@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
+import { CreateTaskDialog } from 'src/components/Workspace/CreateTaskDialog'
+import { CreateProposalDialog } from 'src/components/Workspace/CreateProposalDialog'
 
 export const Profile = () => {
     const account = useAccountStore((state) => state.account)
+
+    const [taskOpen, setTaskOpen] = useState(false)
+    const [proposalOpen, setProposalOpen] = useState(false)
 
     return (
         <div
@@ -37,16 +42,36 @@ export const Profile = () => {
             </div>
             <div className={`flex flex-col space-y-1 w-full`}>
                 <button
-                    className={`border border-slate-600 rounded w-full py-2 text-slate-300 text-[12px] leading-[15px]`}
+                    onClick={() => {
+                        setTaskOpen(true)
+                    }}
+                    className={`border border-slate-600 rounded w-full py-2 text-slate-300 text-[12px] leading-[15px]
+                    hover:bg-slate-700`}
                 >
                     Create Task
                 </button>
                 <button
-                    className={`border border-slate-600 rounded w-full py-2 text-slate-300 text-[12px] leading-[15px]`}
+                    onClick={() => {
+                        setProposalOpen(true)
+                    }}
+                    className={`border border-slate-600 rounded w-full py-2 text-slate-300 text-[12px] leading-[15px]
+                    hover:bg-slate-700`}
                 >
                     Create Proposal
                 </button>
             </div>
+            <CreateTaskDialog
+                open={taskOpen}
+                onClose={() => {
+                    setTaskOpen(false)
+                }}
+            />
+            <CreateProposalDialog
+                open={proposalOpen}
+                onClose={() => {
+                    setProposalOpen(false)
+                }}
+            />
         </div>
     )
 }
