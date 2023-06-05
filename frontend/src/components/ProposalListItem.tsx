@@ -1,6 +1,7 @@
 import React from 'react'
 import { type Proposal } from 'src/types/proposal'
 import { ProposalStatusLabel } from 'src/components/ProposalStatusLabel'
+import { useNavigate } from 'react-router-dom'
 
 interface ProposalListItemProps {
     proposal: Proposal
@@ -11,10 +12,21 @@ export const ProposalListItem = ({
     proposal,
     isMine,
 }: ProposalListItemProps) => {
+    const navigate = useNavigate()
+
+    const handleClick = (index: number) => {
+        navigate(`/townhall/proposals/${index}`)
+    }
+
     return (
         <div
+            onClick={() => {
+                handleClick(proposal.id)
+            }}
             className={
-                'flex flex-row justify-between py-2.5 pl-2 pr-3 bg-slate-800 rounded-lg items-center'
+                'flex flex-row justify-between py-2.5 ' +
+                'pl-2 pr-3 bg-slate-800 rounded-lg items-center ' +
+                'cursor-pointer hover:bg-slate-700'
             }
         >
             <div className={'flex flex-row items-center space-x-12'}>

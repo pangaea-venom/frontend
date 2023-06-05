@@ -33,6 +33,8 @@ module.exports = {
                     primary: '#E82A00',
                     secondary: '#FFE9E9',
                     400: '#F87171',
+                    500: '#EF4444',
+                    100: '#FEE2E2',
                 },
                 amber: {
                     300: '#FCD34D',
@@ -40,8 +42,10 @@ module.exports = {
                 green: {
                     primary: '#103B37',
                     secondary: '#E6EDED',
+                    500: '#22C55E',
                     400: '#4ADE80',
                     300: '#86EFAC',
+                    100: '#DCFCE7',
                 },
                 lime: {
                     400: '#A3E635',
@@ -55,6 +59,9 @@ module.exports = {
                     white: '#FBFBFB',
                     lightgray: '#E5E5EA',
                     gray: '#7E7F89',
+                },
+                gray: {
+                    50: '#F9FAFB',
                 },
             },
         },
