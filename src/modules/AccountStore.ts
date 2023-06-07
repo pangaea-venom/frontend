@@ -1,7 +1,11 @@
 import { create } from 'zustand'
 
 interface Account {
-    username: string
+    uid: string
+    name: string
+    points: string
+    earned: string
+    assigned: string
 }
 
 interface AccountStore {

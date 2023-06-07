@@ -91,7 +91,7 @@ export const Header = () => {
                                         'text-[14px] text-white font-medium min-w-[120px] text-center'
                                     }
                                 >
-                                    {account.username}
+                                    {account.name}
                                 </p>
                             </button>
                         </div>

@@ -26,7 +26,7 @@ export const Profile = () => {
                             'text-slate-50 text-[20px] leading-[25px] font-medium'
                         }
                     >
-                        {account?.username}
+                        {account?.name}
                     </p>
                     <button
                         className={`flex flex-row items-center space-x-2 bg-slate-700 rounded px-2 pt-1 pb-1.5`}

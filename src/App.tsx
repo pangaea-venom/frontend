@@ -2,18 +2,25 @@ import React, { useEffect, useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { useNavigate } from 'react-router-dom'
 import { VenomConnect } from 'venom-connect'
-import { ProviderRpcClient } from 'everscale-inpage-provider'
+import {
+    type Contract,
+    Address,
+    ProviderRpcClient,
+} from 'everscale-inpage-provider'
 import { EverscaleStandaloneClient } from 'everscale-standalone-client'
+
+import { DaoAbi } from 'src/abi/dao'
+import BigNumber from 'bignumber.js'
+import { LoadingOverlay } from './components/LoadingOverlay'
 
 // Venom Wallet Connect
 // https://github.com/web3sp/venom-connect/blob/main/examples/react/src/App.tsx
 
 function App() {
-    const [isConnected, setIsConnected] = useState<boolean>(false)
+    const [needToJoin, setNeedToJoin] = useState<boolean>(false)
 
     const [username, setUsername] = useState<string>('')
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [address, setAddress] = useState<string | undefined>(undefined)
+    const [address, setAddress] = useState<Address | undefined>(undefined)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [balance, setBalance] = useState<string | undefined>(undefined)
 
@@ -23,6 +30,12 @@ function App() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useState(false)
     const [venomConnect, setVenomConnect] = useState<any>()
+    const [venomProvider, setVenomProvider] = useState<
+        ProviderRpcClient | undefined
+    >(undefined)
+    const [daoContract, setDaoContract] = useState<
+        Contract<typeof DaoAbi> | undefined
+    >(undefined)
 
     const navigate = useNavigate()
 
@@ -41,7 +54,7 @@ function App() {
     const initVenomConnect = async () => {
         return new VenomConnect({
             theme: 'dark',
-            checkNetworkId: 1000,
+            checkNetworkId: 0,
             providersOptions: {
                 venomwallet: {
                     links: {
@@ -73,12 +86,6 @@ function App() {
                             type: 'extension',
                         },
                     ],
-                    defaultWalletWaysToConnect: [
-                        // List of enabled options
-                        'mobile',
-                        'ios',
-                        'android',
-                    ],
                 },
             },
         })
@@ -87,15 +94,15 @@ function App() {
     const getAddress = async (provider: ProviderRpcClient) => {
         const providerState = await provider?.getProviderState?.()
 
-        const address =
-            providerState?.permissions.accountInteraction?.address.toString()
-
-        return address
+        return providerState?.permissions.accountInteraction?.address
     }
 
     const checkAuth = async (_venomConnect: any) => {
         const auth = await _venomConnect?.checkAuth()
-        if (auth) await getAddress(_venomConnect)
+        if (auth) {
+            setLoading(true)
+            await check(_venomConnect)
+        }
     }
 
     const onInitButtonClick = async () => {
@@ -107,14 +114,15 @@ function App() {
     }
 
     const onConnectButtonClick = async () => {
-        venomConnect?.connect()
+        if (!venomConnect) return
+        venomConnect.connect()
     }
 
     useEffect(() => {
         onInitButtonClick()
     }, [])
 
-    const getBalance = async (provider: any, _address: string) => {
+    const getBalance = async (provider: any, _address: Address) => {
         try {
             const providerBalance = await provider?.getBalance?.(_address)
 
@@ -124,7 +132,7 @@ function App() {
         }
     }
 
-    const check = async (_provider: any) => {
+    const check = async (_provider: ProviderRpcClient | undefined) => {
         const _address = _provider ? await getAddress(_provider) : undefined
         const _balance =
             _provider && _address
@@ -135,7 +143,7 @@ function App() {
         setBalance(_balance)
 
         if (_provider && _address) {
-            setIsConnected(true)
+            setVenomProvider(_provider)
             setTimeout(() => {
                 check(_provider)
             }, 7000)
@@ -143,20 +151,70 @@ function App() {
     }
 
     const onConnect = async (provider: ProviderRpcClient | undefined) => {
+        setLoading(true)
         check(provider)
+    }
+
+    const onDisconnect = async () => {
+        venomProvider?.disconnect()
+        setAddress(undefined)
+        // Balance reseting
+        setBalance(undefined)
     }
 
     useEffect(() => {
         const off = venomConnect?.on('connect', onConnect)
+        const offDisconnect = venomConnect?.on('disconnect', onDisconnect)
 
         return () => {
             off?.()
+            offDisconnect?.()
         }
     }, [venomConnect])
 
-    const handleSubmit = () => {
-        setAccount({
-            username,
+    useEffect(() => {
+        if (venomProvider && address) {
+            const contractAddress = new Address(
+                '0:c21b137fa2ed4af1b88ae7b36b28832594e73f6402115cbeafcefc81cb2897ec'
+            )
+            const _daoContract = new venomProvider.Contract(
+                DaoAbi,
+                contractAddress
+            )
+            setDaoContract(_daoContract)
+        }
+    }, [venomProvider])
+
+    const checkIfMember = async () => {
+        if (!daoContract || !address) {
+            return
+        }
+
+        const result = await daoContract.methods
+            .isMember({ person: address })
+            .call()
+        if (result.exists) {
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
+            setAccount(user.value0)
+        } else {
+            setNeedToJoin(true)
+        }
+    }
+
+    useEffect(() => {
+        checkIfMember()
+    }, [daoContract])
+
+    const handleSubmit = async () => {
+        if (!daoContract || !address) return
+
+        const amount = new BigNumber(2).shiftedBy(9).toString()
+
+        await daoContract.methods.joinDao({ name: username }).send({
+            from: address,
+            amount,
         })
     }
 
@@ -167,99 +225,86 @@ function App() {
     }, [account])
 
     return (
-        <div className={'container mx-auto flex flex-col'}>
-            <div
-                className={
-                    'mt-[180px] flex flex-col items-center space-y-[36px]'
-                }
-            >
-                {isConnected ? (
-                    <>
-                        <div className={'flex flex-col items-start space-y-10'}>
-                            <p
-                                className={
-                                    'text-[36px] leading-[45px] text-left font-semibold'
-                                }
-                            >
-                                Lemme know <br />
-                                your name
-                            </p>
-                            <input
-                                onChange={(e) => {
-                                    setUsername(e.target.value)
-                                }}
-                                type="text"
-                                name={'username'}
-                                placeholder={'How should I call you?'}
-                                required
-                                className={
-                                    'appearance-none w-[400px] border-slate-500 border-b text-[20px] py-2 ' +
-                                    'leading-[30px] placeholder:text-slate-600 text-slate-50 bg-transparent'
-                                }
-                            />
-                            <button
-                                className={
-                                    'appearance-none bg-sky-500 w-[104px] py-2 rounded-md ' +
-                                    'text-white font-medium text-[16px] disabled:bg-slate-700 ' +
-                                    'disabled:cursor-not-allowed disabled:text-slate-500'
-                                }
-                                disabled={!username}
-                                type={'submit'}
-                                onClick={handleSubmit}
-                            >
-                                Join
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div
-                            className={
-                                'flex flex-col items-center space-y-[64px]'
-                            }
-                        >
+        <LoadingOverlay active={loading}>
+            <div className={'container mx-auto flex flex-col'}>
+                <div
+                    className={
+                        'mt-[180px] flex flex-col items-center space-y-[36px]'
+                    }
+                >
+                    {needToJoin ? (
+                        <>
                             <div
                                 className={
-                                    'flex flex-col items-center space-y-[28px]'
+                                    'flex flex-col items-start space-y-10'
                                 }
                             >
                                 <p
                                     className={
-                                        'text-[36px] leading-[45px] text-center font-semibold'
+                                        'text-[36px] leading-[45px] text-left font-semibold'
                                     }
                                 >
-                                    Welcome! <br />
-                                    Start Your Impossible
+                                    Lemme know <br />
+                                    your name
                                 </p>
-                                <p
+                                <input
+                                    onChange={(e) => {
+                                        setUsername(e.target.value)
+                                    }}
+                                    type="text"
+                                    name={'username'}
+                                    placeholder={'How should I call you?'}
+                                    required
                                     className={
-                                        'text-[20px] leading-[25px] text-slate-300'
+                                        'appearance-none w-[400px] border-slate-500 border-b text-[20px] py-2 ' +
+                                        'leading-[30px] placeholder:text-slate-600 text-slate-50 bg-transparent'
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSubmit()
+                                    }}
+                                />
+                                <button
+                                    className={
+                                        'appearance-none bg-sky-500 w-[104px] py-2 rounded-md ' +
+                                        'text-white font-medium text-[16px] disabled:bg-slate-700 ' +
+                                        'disabled:cursor-not-allowed disabled:text-slate-500'
+                                    }
+                                    disabled={!username}
+                                    type={'submit'}
+                                    onClick={handleSubmit}
+                                >
+                                    Join
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div
+                                className={
+                                    'flex flex-col items-center space-y-[64px]'
+                                }
+                            >
+                                <div
+                                    className={
+                                        'flex flex-col items-center space-y-[28px]'
                                     }
                                 >
-                                    Pangaea supports venom network only
-                                </p>
-                            </div>
-                            {loading ? (
-                                <div role="status">
-                                    <svg
-                                        aria-hidden="true"
-                                        className="w-[44px] h-[45px] mr-2 text-[#282828] animate-spin dark:text-gray-600 fill-[#B0B1B7]"
-                                        viewBox="0 0 100 101"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
+                                    <p
+                                        className={
+                                            'text-[36px] leading-[45px] text-center font-semibold'
+                                        }
                                     >
-                                        <path
-                                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                            fill="currentColor"
-                                        />
-                                        <path
-                                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                            fill="currentFill"
-                                        />
-                                    </svg>
-                                    <span className="sr-only">Loading...</span>
+                                        Welcome! <br />
+                                        Start Your Impossible
+                                    </p>
+                                    <p
+                                        className={
+                                            'text-[20px] leading-[25px] text-slate-300'
+                                        }
+                                    >
+                                        Pangaea supports venom network only
+                                    </p>
                                 </div>
-                            ) : (
                                 <button
                                     className={
                                         'bg-black text-white text-[14px] px-[24px] py-[12px] ' +
@@ -281,12 +326,12 @@ function App() {
                                         Connect Wallet
                                     </p>
                                 </button>
-                            )}
-                        </div>
-                    </>
-                )}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </LoadingOverlay>
     )
 }
 
