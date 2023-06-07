@@ -61,7 +61,7 @@ export const Root = () => {
                                         'venomwallet',
                                         'extension'
                                         // eslint-disable-next-line
-                                    ) || (async () => await Promise.reject()),
+                                    ) || (() => Promise.reject()),
                                 forceUseFallback: true,
                             },
                             packageOptionsStandalone: {
@@ -133,12 +133,13 @@ export const Root = () => {
     }, [])
 
     const onConnect = async (provider: ProviderRpcClient | undefined) => {
-        setLoading(true)
         check(provider)
     }
 
     useEffect(() => {
-        const off = venomConnect?.on('connect', onConnect)
+        if (!venomConnect) return
+
+        const off = venomConnect.on('connect', onConnect)
 
         return () => {
             off?.()
@@ -158,6 +159,7 @@ export const Root = () => {
         }
     }, [venomProvider])
 
+
     const checkIfMember = async () => {
         if (!daoContract || !address) {
             return
@@ -171,8 +173,9 @@ export const Root = () => {
                 .getMember({ member: address })
                 .call()
             setAccount(user.value0)
-            setLoading(false)
         }
+
+        setLoading(false)
     }
 
     useEffect(() => {
