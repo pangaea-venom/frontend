@@ -1,7 +1,9 @@
+import { type Address } from 'everscale-inpage-provider'
+
 export const ProposalStatus = {
-    Executed: 'Executed',
     NotReached: 'Not Reached',
     Active: 'Active',
+    Executed: 'Executed',
 }
 
 // eslint-disable-next-line
@@ -16,13 +18,23 @@ export const PollStatus = {
 // eslint-disable-next-line
 export type PollStatus = (typeof PollStatus)[keyof typeof PollStatus]
 
+export const ProposalStatusMap = {
+    '0': ProposalStatus.NotReached,
+    '1': ProposalStatus.Active,
+    '2': ProposalStatus.Executed,
+    '3': ProposalStatus.Executed,
+}
+
 export interface Proposal {
     id: number
     title: string
-    status: ProposalStatus
-    proposedDate: string
-    forCount: number
-    againstCount: number
-    description?: string
-    abstainCount?: 12
+    description: string
+    creator: Address
+    createdTime: string
+    status: string
+    startTime: string
+    endTime: string
+    yes: string
+    no: string
+    abstain: string
 }

@@ -2,6 +2,7 @@ import React, { type ChangeEvent, useState } from 'react'
 import { Dialog } from 'src/components/Dialog'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { toNano } from 'src/util'
+import { toast } from 'react-toastify'
 
 interface CreateTaskDialogProps {
     open: boolean
@@ -52,6 +53,7 @@ export const CreateTaskDialog = ({ open, onClose }: CreateTaskDialogProps) => {
             })
 
         setLoading(false)
+        toast.success('Task created successfully')
         onClose()
     }
 

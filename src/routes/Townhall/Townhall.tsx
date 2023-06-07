@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Tabs } from 'src/components/Tabs'
 import { Outlet, useMatch, useNavigate } from 'react-router-dom'
 import { useAccountStore } from 'src/modules/AccountStore'
-import { InnerLoadingOverlay } from 'src/components/InnerLoadingOverlay'
 
 export const Townhall = () => {
     const match = useMatch('/townhall/:activeName')
     const activeName = match?.params.activeName
 
-    const [innerLoading, setInnerLoading] = useState(false)
-
     const daoContract = useAccountStore((state) => state.daoContract)
     const setNumOfTasks = useAccountStore((state) => state.setNumOfTasks)
+    const setNumOfProposals = useAccountStore(
+        (state) => state.setNumOfProposals
+    )
 
     const navigate = useNavigate()
 
@@ -33,12 +33,14 @@ export const Townhall = () => {
     const getTasks = async () => {
         if (!daoContract) return
 
-        setInnerLoading(true)
-
         const { _numOfTasks } = await daoContract.methods._numOfTasks({}).call()
+        const { _numOfProposals } = await daoContract.methods
+            ._numOfProposals({})
+            .call()
         const numOfTasks = Number(_numOfTasks)
+        const numOfProposals = Number(_numOfProposals)
         setNumOfTasks(numOfTasks)
-        setInnerLoading(false)
+        setNumOfProposals(numOfProposals)
     }
 
     useEffect(() => {
@@ -55,12 +57,7 @@ export const Townhall = () => {
                     tabItems={tabItems}
                     activeName={activeName}
                 />
-                <InnerLoadingOverlay
-                    active={innerLoading}
-                    className={'min-h-[300px]'}
-                >
-                    <Outlet />
-                </InnerLoadingOverlay>
+                <Outlet />
             </div>
         </div>
     )

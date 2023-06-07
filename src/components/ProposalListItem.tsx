@@ -1,22 +1,47 @@
-import React from 'react'
-import { type Proposal } from 'src/types/proposal'
+import React, { useEffect, useState } from 'react'
+import { type Proposal, ProposalStatusMap } from 'src/types/proposal'
 import { ProposalStatusLabel } from 'src/components/ProposalStatusLabel'
 import { useNavigate } from 'react-router-dom'
+import { useAccountStore } from 'src/modules/AccountStore'
+import { toDateString } from 'src/util'
 
 interface ProposalListItemProps {
-    proposal: Proposal
+    proposalId: number
     isMine?: boolean
 }
 
 export const ProposalListItem = ({
-    proposal,
+    proposalId,
     isMine,
 }: ProposalListItemProps) => {
     const navigate = useNavigate()
 
+    const [proposal, setProposal] = useState<Proposal | undefined>(undefined)
+
+    const getProposal = useAccountStore((state) => state.getProposal)
+    const daoContract = useAccountStore((state) => state.daoContract)
+
+    const updateProposal = async () => {
+        const proposal = await getProposal(proposalId)
+        setProposal(proposal)
+    }
+
+    useEffect(() => {
+        if (!daoContract) return
+
+        updateProposal()
+    }, [])
+
+    if (!proposal) return null
+
     const handleClick = (index: number) => {
         navigate(`/townhall/proposals/${index}`)
     }
+
+    const yesCount = Number(proposal.yes)
+    const noCount = Number(proposal.no)
+    const abstainCount = Number(proposal.abstain)
+    const totalCount = yesCount + noCount + abstainCount
 
     return (
         <div
@@ -31,7 +56,10 @@ export const ProposalListItem = ({
         >
             <div className={'flex flex-row items-center space-x-12'}>
                 <div className={'py-1 pl-3 w-[120px]'}>
-                    <ProposalStatusLabel status={proposal.status} />
+                    <ProposalStatusLabel
+                        /* @ts-ignore */
+                        status={ProposalStatusMap[proposal.status]}
+                    />
                 </div>
                 <div className={'flex flex-col space-y-2'}>
                     <p
@@ -42,7 +70,7 @@ export const ProposalListItem = ({
                         {proposal.title}
                     </p>
                     <p className={'text-[14px] leading-[18px] text-slate-500'}>
-                        Proposed on: {proposal.proposedDate}
+                        Proposed on: {toDateString(proposal.createdTime)}
                     </p>
                 </div>
             </div>
@@ -59,7 +87,7 @@ export const ProposalListItem = ({
                                     'text-[22px] leading-[25px] text-green-300 font-medium'
                                 }
                             >
-                                {proposal.forCount}
+                                {yesCount}
                             </p>
                             <p
                                 className={
@@ -68,10 +96,7 @@ export const ProposalListItem = ({
                             >
                                 (
                                 {Math.round(
-                                    (proposal.forCount /
-                                        (proposal.forCount +
-                                            proposal.againstCount)) *
-                                        100
+                                    (yesCount / Math.max(totalCount, 1)) * 100
                                 )}
                                 %)
                             </p>
@@ -81,9 +106,7 @@ export const ProposalListItem = ({
                                 className={`h-[4px] bg-green-300`}
                                 style={{
                                     width: `${Math.round(
-                                        (proposal.forCount /
-                                            (proposal.forCount +
-                                                proposal.againstCount)) *
+                                        (yesCount / Math.max(totalCount, 1)) *
                                             100
                                     )}%`,
                                 }}
@@ -101,7 +124,7 @@ export const ProposalListItem = ({
                                     'text-[22px] leading-[25px] text-red-400 font-medium'
                                 }
                             >
-                                {proposal.againstCount}
+                                {noCount}
                             </p>
                             <p
                                 className={
@@ -109,10 +132,7 @@ export const ProposalListItem = ({
                                 }
                             >
                                 {Math.round(
-                                    (proposal.againstCount /
-                                        (proposal.forCount +
-                                            proposal.againstCount)) *
-                                        100
+                                    (noCount / Math.max(totalCount, 1)) * 100
                                 )}
                                 %
                             </p>
@@ -122,9 +142,7 @@ export const ProposalListItem = ({
                                 className={`h-[4px] bg-red-400`}
                                 style={{
                                     width: `${Math.round(
-                                        (proposal.againstCount /
-                                            (proposal.forCount +
-                                                proposal.againstCount)) *
+                                        (noCount / Math.max(totalCount, 1)) *
                                             100
                                     )}%`,
                                 }}
@@ -137,15 +155,14 @@ export const ProposalListItem = ({
                                 'text-[16px] leading-[20px] text-slate-300 font-medium'
                             }
                         >
-                            {proposal.forCount + proposal.againstCount} Votes
+                            {totalCount} Votes
                         </p>
                         <p
                             className={
                                 'text-[14px] leading-[18px] text-slate-500'
                             }
                         >
-                            {proposal.forCount + proposal.againstCount}{' '}
-                            addresses
+                            {totalCount} addresses
                         </p>
                     </div>
                 </div>

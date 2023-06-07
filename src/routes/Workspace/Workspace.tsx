@@ -60,8 +60,10 @@ export const Workspace = () => {
                         <VenomLabel amount={account?.earned} />
                     </div>
                     <button
+                        disabled={account?.earned === '0'}
                         className={
-                            'bg-sky-500 rounded py-2 text-sky-50 text-[14px] leading-[18px] font-medium w-full'
+                            'bg-sky-500 rounded py-2 text-sky-50 text-[14px] ' +
+                            'leading-[18px] font-medium w-full disabled:bg-slate-700 disabled:text-slate-500'
                         }
                     >
                         Claim

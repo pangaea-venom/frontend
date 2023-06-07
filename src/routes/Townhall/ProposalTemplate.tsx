@@ -1,22 +1,40 @@
-import React from 'react'
-import { PollStatus, type Proposal, ProposalStatus } from 'src/types/proposal'
+import React, { useEffect, useState } from 'react'
+import { PollStatus, type Proposal } from 'src/types/proposal'
 import { PollStatusBadge } from 'src/components/PollStatusBadge'
+import { useAccountStore } from 'src/modules/AccountStore'
+import { useParams } from 'react-router-dom'
+import { numberWithCommas, toDateString } from 'src/util'
+import { Username } from 'src/components/Username'
 
 export const ProposalTemplate = () => {
-    const proposal: Proposal = {
-        id: 1,
-        title: 'Proposal Title',
-        description: 'Proposal Description',
-        forCount: 632,
-        againstCount: 123,
-        abstainCount: 12,
-        proposedDate: new Date().toDateString(),
-        status: ProposalStatus.Active,
-    }
+    const [proposal, setProposal] = useState<Proposal | undefined>(undefined)
 
     const [pollStatus, setPollStatus] = React.useState<PollStatus | undefined>(
         undefined
     )
+
+    const { proposalId } = useParams()
+
+    const getProposal = useAccountStore((state) => state.getProposal)
+    const daoContract = useAccountStore((state) => state.daoContract)
+
+    const updateProposal = async () => {
+        const proposal = await getProposal(Number(proposalId))
+        setProposal(proposal)
+    }
+
+    useEffect(() => {
+        if (!daoContract) return
+
+        updateProposal()
+    }, [])
+
+    if (!proposal) return null
+
+    const yesCount = Number(proposal.yes)
+    const noCount = Number(proposal.no)
+    const abstainCount = Number(proposal.abstain)
+    const totalCount = yesCount + noCount + abstainCount
 
     return (
         <div className={'container mx-auto flex flex-col mt-10 pb-25'}>
@@ -39,13 +57,13 @@ export const ProposalTemplate = () => {
                             'text-[12px] leading-[15px] text-slate-300 font-medium'
                         }
                     >
-                        Chelsea Lee
+                        <Username address={proposal.creator} />
                     </p>
                     <p className={'text-[12px] leading-[15px] text-slate-500'}>
                         ·
                     </p>
                     <p className={'text-[12px] leading-[15px] text-slate-500'}>
-                        Proposed on: {proposal.proposedDate}
+                        Proposed on: {toDateString(proposal.createdTime)}
                     </p>
                 </div>
             </div>
@@ -115,7 +133,7 @@ export const ProposalTemplate = () => {
                                             'text-[16px] leading-[20px] text-slate-400'
                                         }
                                     >
-                                        Chelsea Kim
+                                        <Username address={proposal.creator} />
                                     </p>
                                 </div>
                                 <div
@@ -256,7 +274,7 @@ export const ProposalTemplate = () => {
                                 'text-[14px] leading-[18px] text-slate-300 font-medium'
                             }
                         >
-                            1,502 Votes
+                            {numberWithCommas(totalCount)} Votes
                         </p>
                         <p
                             className={
@@ -285,7 +303,7 @@ export const ProposalTemplate = () => {
                                         'text-[20px] leading-[25px] text-gray-50 font-bold ml-2'
                                     }
                                 >
-                                    632
+                                    {yesCount}
                                 </p>
                             </div>
                             <div
@@ -301,7 +319,10 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-green-300 rounded`}
                                         style={{
-                                            width: `70%`,
+                                            width: `${
+                                                yesCount /
+                                                Math.max(1, totalCount)
+                                            }%`,
                                         }}
                                     />
                                 </div>
@@ -310,7 +331,7 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    70%
+                                    {yesCount / Math.max(1, totalCount)}%
                                 </p>
                             </div>
                         </div>
@@ -332,7 +353,7 @@ export const ProposalTemplate = () => {
                                         'text-[20px] leading-[25px] text-gray-50 font-bold ml-2'
                                     }
                                 >
-                                    172
+                                    {noCount}
                                 </p>
                             </div>
                             <div
@@ -348,7 +369,10 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-red-400 rounded`}
                                         style={{
-                                            width: `20%`,
+                                            width: `${
+                                                noCount /
+                                                Math.max(1, totalCount)
+                                            }%`,
                                         }}
                                     />
                                 </div>
@@ -357,7 +381,7 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    20%
+                                    {noCount / Math.max(1, totalCount)}%
                                 </p>
                             </div>
                         </div>
@@ -379,7 +403,7 @@ export const ProposalTemplate = () => {
                                         'text-[20px] leading-[25px] text-gray-50 font-bold ml-2'
                                     }
                                 >
-                                    54
+                                    {abstainCount}
                                 </p>
                             </div>
                             <div
@@ -395,7 +419,10 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-slate-400 rounded`}
                                         style={{
-                                            width: `10%`,
+                                            width: `${
+                                                abstainCount /
+                                                Math.max(1, totalCount)
+                                            }%`,
                                         }}
                                     />
                                 </div>
@@ -404,7 +431,7 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    10%
+                                    {abstainCount / Math.max(1, totalCount)}%
                                 </p>
                             </div>
                         </div>

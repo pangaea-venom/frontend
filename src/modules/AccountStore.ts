@@ -7,6 +7,7 @@ import {
 } from 'everscale-inpage-provider'
 import { type DaoAbi } from 'src/abi/dao'
 import { type Task } from 'src/types/task'
+import { type Proposal } from 'src/types/proposal'
 
 interface Account {
     uid: string
@@ -17,6 +18,8 @@ interface Account {
     acceptedTasks: string
     appliedTasks: string
     accumulatedVotes: string
+    createdProposals: string[]
+    createdTasks: string[]
 }
 
 interface AccountStore {
@@ -42,6 +45,11 @@ interface AccountStore {
     memberMap: Map<Address, Account>
     setMember: (address: Address, member: Account) => void
     getMember: (address: Address) => Promise<Account | undefined>
+    numOfProposals: number
+    setNumOfProposals: (numOfProposals: number) => void
+    proposalMap: Map<number, Proposal>
+    setProposal: (id: number, proposal: Proposal) => void
+    getProposal: (id: number) => Promise<Proposal | undefined>
 }
 
 export const useAccountStore = create<AccountStore>()((set, get) => ({
@@ -132,5 +140,43 @@ export const useAccountStore = create<AccountStore>()((set, get) => ({
         const setMember = get().setMember
         setMember(address, newMember)
         return newMember
+    },
+    numOfProposals: 0,
+    setNumOfProposals: (numOfProposals) => {
+        set({ numOfProposals })
+    },
+    proposalMap: new Map<number, Proposal>(),
+    setProposal: (id, proposal) => {
+        set((state) => {
+            const newProposalMap = new Map(state.proposalMap)
+            newProposalMap.set(id, proposal)
+            return { proposalMap: newProposalMap }
+        })
+    },
+    getProposal: async (id) => {
+        const proposalMap = get().proposalMap
+        const proposal = proposalMap.get(id)
+        if (proposal) return proposal
+
+        const daoContract = get().daoContract
+
+        if (!daoContract) return undefined
+
+        const { value0 } = await daoContract.methods
+            .getProposal({ proposalID: id })
+            .call()
+        const { value0: vote } = await daoContract.methods
+            .getVote({ proposalID: id })
+            .call()
+
+        const newProposal = {
+            ...value0,
+            ...vote,
+            id,
+        }
+
+        const setProposal = get().setProposal
+        setProposal(id, newProposal)
+        return newProposal
     },
 }))

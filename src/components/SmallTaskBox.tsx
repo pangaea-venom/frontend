@@ -3,14 +3,26 @@ import { type Task } from 'src/types/task'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { VenomLabel } from 'src/components/VenomLabel'
+import { useNavigate } from 'react-router-dom'
 
 interface SmallTaskBoxProps {
     task: Task
 }
 
 export const SmallTaskBox = ({ task }: SmallTaskBoxProps) => {
+    const navigate = useNavigate()
+
+    const handleClick = () => {
+        navigate(`/townhall/tasks/${task.id}`)
+    }
+
     return (
-        <div className={'flex flex-col space-y-5 rounded-lg p-5 bg-slate-800'}>
+        <div
+            onClick={handleClick}
+            className={
+                'flex flex-col space-y-5 rounded-lg p-5 bg-slate-800 cursor-pointer hover:opacity-80'
+            }
+        >
             <p
                 className={
                     'text-[16px] leading-[20px] font-semibold text-slate-50'
@@ -30,7 +42,7 @@ export const SmallTaskBox = ({ task }: SmallTaskBoxProps) => {
                 <p className={'text-[14px] leading-[18px] text-slate-400'}>
                     Bounty
                 </p>
-                <VenomLabel amount={30} isSmall />
+                <VenomLabel amount={task.bounty} isSmall />
             </div>
         </div>
     )

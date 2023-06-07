@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { type ChangeEvent, useState } from 'react'
 import { Dialog } from 'src/components/Dialog'
+import { toNano } from 'src/util'
+import { useAccountStore } from 'src/modules/AccountStore'
+import { toast } from 'react-toastify'
 
 interface CreateProposalDialogProps {
     open: boolean
@@ -10,6 +13,50 @@ export const CreateProposalDialog = ({
     open,
     onClose,
 }: CreateProposalDialogProps) => {
+    const [input, setInput] = useState({
+        title: '',
+        description: '',
+        duration: '',
+    })
+
+    const setLoading = useAccountStore((state) => state.setLoading)
+
+    const daoContract = useAccountStore((state) => state.daoContract)
+    const address = useAccountStore((state) => state.address)
+
+    const handleChange = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        setInput({
+            ...input,
+            [e.target.name]: e.target.value,
+        })
+    }
+
+    const handleSubmit = async () => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+
+        const sendVal = toNano(1)
+
+        const duration = Number(input.duration) * 60 * 60 * 24
+
+        await daoContract.methods
+            .createProposal({
+                ...input,
+                duration,
+            })
+            .send({
+                from: address,
+                amount: sendVal,
+            })
+
+        setLoading(false)
+        toast.success('Proposal created successfully')
+        onClose()
+    }
+
     return (
         <Dialog open={open} onClose={onClose}>
             <div
@@ -18,15 +65,19 @@ export const CreateProposalDialog = ({
                 }
             >
                 <input
+                    onChange={handleChange}
                     placeholder={'Proposal title'}
+                    name={'title'}
                     className={
                         'appearance-none bg-transparent text-[24px] leading-[30px] ' +
                         'font-bold placeholder:text-slate-500 text-slate-50'
                     }
                 />
                 <textarea
+                    onChange={handleChange}
                     placeholder={'Write description'}
                     rows={6}
+                    name={'description'}
                     className={
                         'appearance-none bg-transparent text-[16px] leading-[20px] ' +
                         'placeholder:text-slate-500 text-slate-50 mt-7'
@@ -44,8 +95,10 @@ export const CreateProposalDialog = ({
                         </p>
                         <div className={'flex flex-row items-center'}>
                             <input
+                                onChange={handleChange}
                                 type={'number'}
                                 placeholder={'7'}
+                                name={'duration'}
                                 className={
                                     'appearance-none bg-transparent text-[14px] leading-[18px] ' +
                                     'placeholder:text-slate-500 text-slate-50 w-[40px]'
@@ -71,9 +124,12 @@ export const CreateProposalDialog = ({
                         Cancel
                     </button>
                     <button
-                        onClick={onClose}
+                        // @ts-ignore
+                        disabled={Object.keys(input).some((key) => !input[key])}
+                        onClick={handleSubmit}
                         className={
-                            'w-[130px] py-2 rounded text-[14px] leading-[18px] text-sky-50 bg-sky-500'
+                            'w-[130px] py-2 rounded text-[14px] leading-[18px] ' +
+                            'text-sky-50 bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500'
                         }
                     >
                         Suggest
