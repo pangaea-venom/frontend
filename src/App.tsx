@@ -42,11 +42,11 @@ function App() {
     const standaloneFallback = async () =>
         await EverscaleStandaloneClient.create({
             connection: {
-                id: 1000,
-                group: 'venom_testnet',
+                id: 1002,
+                group: 'venom_devnet',
                 type: 'jrpc',
                 data: {
-                    endpoint: 'https://jrpc.venom.foundation/rpc',
+                    endpoint: 'https://jrpc-devnet.venom.foundation/rpc',
                 },
             },
         })
