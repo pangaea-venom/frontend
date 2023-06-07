@@ -1,5 +1,5 @@
 import React from 'react'
-import { type Task } from 'src/types/task'
+import { type Task, TaskResultStatus } from 'src/types/task'
 import { TaskResultStatusLabel } from 'src/components/TaskResultStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
@@ -19,7 +19,9 @@ export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
                             'flex flex-col w-100px py-1 items-center justify-center'
                         }
                     >
-                        <TaskResultStatusLabel status={task.result} />
+                        <TaskResultStatusLabel
+                            status={TaskResultStatus.Rejected}
+                        />
                     </div>
                 ) : null}
                 <p
@@ -32,8 +34,12 @@ export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
             </div>
             <div className={'flex flex-row items-center space-x-5'}>
                 <div className={'flex flex-row space-x-2 items-center'}>
-                    <DueDateLabel dueDate={task.dueDate} />
-                    <MemberAmountLabel amount={task.memberAmount} />
+                    <DueDateLabel
+                        dueDate={new Date(
+                            Number(task.endTime) * 1000
+                        ).toLocaleDateString()}
+                    />
+                    <MemberAmountLabel amount={task.assignees.length} />
                 </div>
                 {!isToReview ? (
                     <button

@@ -19,8 +19,12 @@ export const SmallTaskBox = ({ task }: SmallTaskBoxProps) => {
                 {task.title}
             </p>
             <div className={'flex flex-row space-x-2'}>
-                <DueDateLabel dueDate={task.dueDate} />
-                <MemberAmountLabel amount={task.memberAmount} />
+                <DueDateLabel
+                    dueDate={new Date(
+                        Number(task.endTime) * 1000
+                    ).toLocaleDateString()}
+                />
+                <MemberAmountLabel amount={task.assignees.length} />
             </div>
             <div className={'flex flex-row justify-between items-center'}>
                 <p className={'text-[14px] leading-[18px] text-slate-400'}>

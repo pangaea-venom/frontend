@@ -4,6 +4,9 @@ import { useMatch, useNavigate } from 'react-router-dom'
 
 export const Header = () => {
     const account = useAccountStore((state) => state.account)
+    const venomProvider = useAccountStore((state) => state.venomProvider)
+    const setAccount = useAccountStore((state) => state.setAccount)
+    const setDaoContract = useAccountStore((state) => state.setDaoContract)
 
     const tabs = [
         {
@@ -39,7 +42,7 @@ export const Header = () => {
                         <button
                             onClick={() => {
                                 account != null
-                                    ? navigate('/explore')
+                                    ? navigate('/townhall')
                                     : navigate('/')
                             }}
                         >
@@ -79,6 +82,12 @@ export const Header = () => {
                                     'flex flex-row items-center space-x-1.5 py-2 ' +
                                     'px-[10px] bg-slate-800 rounded border border-slate-700'
                                 }
+                                onClick={() => {
+                                    venomProvider?.disconnect()
+                                    setAccount(undefined)
+                                    setDaoContract(undefined)
+                                    navigate('/')
+                                }}
                             >
                                 <div
                                     style={{

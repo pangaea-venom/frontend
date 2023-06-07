@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { useNavigate } from 'react-router-dom'
-import BigNumber from 'bignumber.js'
+import { toNano } from 'src/util'
 
 // Venom Wallet Connect
 // https://github.com/web3sp/venom-connect/blob/main/examples/react/src/App.tsx
@@ -13,6 +13,7 @@ function App() {
 
     const setLoading = useAccountStore((state) => state.setLoading)
     const setAccount = useAccountStore((state) => state.setAccount)
+    const setMember = useAccountStore((state) => state.setMember)
 
     const venomConnect = useAccountStore((state) => state.venomConnect)
     const daoContract = useAccountStore((state) => state.daoContract)
@@ -38,6 +39,7 @@ function App() {
                 .getMember({ member: address })
                 .call()
             setAccount(user.value0)
+            setMember(address, user.value0)
             setLoading(false)
         }
     }
@@ -47,7 +49,7 @@ function App() {
 
         setLoading(true)
 
-        const amount = new BigNumber(2).shiftedBy(9).toString()
+        const amount = toNano(2)
 
         await daoContract.methods.joinDao({ name: username }).send({
             from: address,

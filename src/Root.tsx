@@ -79,6 +79,7 @@ export const Root = () => {
     }
 
     const onInitButtonClick = async () => {
+        setLoading(true)
         const venomConnect = await initVenomConnect()
         // you can save venomConnect here
         setVenomConnect(venomConnect)
@@ -95,7 +96,6 @@ export const Root = () => {
     const checkAuth = async (_venomConnect: any) => {
         const auth = await _venomConnect?.checkAuth()
         if (auth) {
-            setLoading(true)
             await check(_venomConnect)
         }
     }
@@ -106,6 +106,11 @@ export const Root = () => {
             _provider && _address
                 ? await getBalance(_provider, _address)
                 : undefined
+
+        if (!_address) {
+            setLoading(false)
+            return
+        }
 
         setAddress(_address)
         setBalance(_balance)
@@ -149,7 +154,7 @@ export const Root = () => {
     useEffect(() => {
         if (venomProvider && address) {
             const contractAddress = new Address(
-                '0:8137b91a8e15ffff68c7d1d2e72e8b7f7cdb6c0a87291f08430d011a7deb245b'
+                '0:de81cbee610b829475d40d3e30e63a136553fadd84f395c2e37bda6f5ed17e5a'
             )
             const _daoContract = new venomProvider.Contract(
                 DaoAbi,
@@ -158,7 +163,6 @@ export const Root = () => {
             setDaoContract(_daoContract)
         }
     }, [venomProvider])
-
 
     const checkIfMember = async () => {
         if (!daoContract || !address) {

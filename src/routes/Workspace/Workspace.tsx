@@ -4,6 +4,7 @@ import { Outlet, useMatch, useNavigate } from 'react-router-dom'
 import { Profile } from 'src/components/Workspace/Profile'
 import { VenomLabel } from 'src/components/VenomLabel'
 import { numberWithCommas } from 'src/util'
+import { useAccountStore } from 'src/modules/AccountStore'
 
 export const Workspace = () => {
     const match = useMatch('/workspace/:activeName/*')
@@ -14,6 +15,9 @@ export const Workspace = () => {
     const handleClick = (activeName: string) => {
         navigate(`/workspace/${activeName}`)
     }
+
+    const balance = useAccountStore((state) => state.balance)
+    const account = useAccountStore((state) => state.account)
 
     const tabItems = [
         {
@@ -40,7 +44,7 @@ export const Workspace = () => {
                     <p className={'text-slate-400 text-[14px] leading-[18px]'}>
                         Assets
                     </p>
-                    <VenomLabel amount={6774} />
+                    <VenomLabel amount={balance} />
                 </div>
                 <div
                     className={`flex flex-col bg-slate-800 rounded-lg py-3 space-y-5 px-4 drop-shadow-md`}
@@ -53,7 +57,7 @@ export const Workspace = () => {
                         >
                             My Earning
                         </p>
-                        <VenomLabel amount={4216} />
+                        <VenomLabel amount={account?.earned} />
                     </div>
                     <button
                         className={
@@ -74,13 +78,7 @@ export const Workspace = () => {
                         >
                             Claimed Tokens
                         </p>
-                        <p
-                            className={
-                                'text-slate-50 text-[20px] leading-[25px] font-medium'
-                            }
-                        >
-                            $743.55
-                        </p>
+                        <VenomLabel amount={account?.points} />
                     </div>
                     <div className={`flex flex-col space-y-2`}>
                         <p
@@ -95,7 +93,7 @@ export const Workspace = () => {
                                 'text-slate-50 text-[20px] leading-[25px] font-medium'
                             }
                         >
-                            {numberWithCommas(23)}
+                            {numberWithCommas(Number(account?.acceptedTasks))}
                         </p>
                     </div>
                     <div className={`flex flex-col space-y-2`}>
@@ -111,7 +109,7 @@ export const Workspace = () => {
                                 'text-slate-50 text-[20px] leading-[25px] font-medium'
                             }
                         >
-                            {numberWithCommas(67)}
+                            {numberWithCommas(Number(account?.appliedTasks))}
                         </p>
                     </div>
                     <div className={`flex flex-col space-y-2`}>
@@ -127,7 +125,9 @@ export const Workspace = () => {
                                 'text-slate-50 text-[20px] leading-[25px] font-medium'
                             }
                         >
-                            {numberWithCommas(3524)}
+                            {numberWithCommas(
+                                Number(account?.accumulatedVotes)
+                            )}
                         </p>
                     </div>
                     <div className={`flex flex-col space-y-2`}>

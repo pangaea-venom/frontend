@@ -26,5 +26,7 @@ module.exports = {
         '@typescript-eslint/no-misused-promises': 'off',
         '@typescript-eslint/no-floating-promises': 'off',
         '@typescript-eslint/strict-boolean-expressions': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off',
+        '@typescript-eslint/prefer-ts-expect-error': 'off',
     },
 }

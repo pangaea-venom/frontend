@@ -42,83 +42,22 @@ export const CreateProposalDialog = ({
                         >
                             Period
                         </p>
-                        <input
-                            placeholder={'e.g. 7 days'}
-                            className={
-                                'appearance-none bg-transparent text-[14px] leading-[18px] ' +
-                                'placeholder:text-slate-500 text-slate-50'
-                            }
-                        />
-                    </div>
-                    <div className={'flex flex-row space-x-2'}>
-                        <p
-                            className={
-                                'py-1 pl-1 w-[80px] text-slate-300 text-[14px] leading-[18px]'
-                            }
-                        >
-                            Choices
-                        </p>
-                        <div className={'flex flex-col space-y-2'}>
-                            <div
+                        <div className={'flex flex-row items-center'}>
+                            <input
+                                type={'number'}
+                                placeholder={'7'}
                                 className={
-                                    'flex flex-row space-x-2 items-center'
+                                    'appearance-none bg-transparent text-[14px] leading-[18px] ' +
+                                    'placeholder:text-slate-500 text-slate-50 w-[40px]'
+                                }
+                            />
+                            <p
+                                className={
+                                    'text-slate-300 text-[14px] leading-[18px]'
                                 }
                             >
-                                <p
-                                    className={
-                                        'text-[14px] leading-[18px] text-slate-300 w-[60px]'
-                                    }
-                                >
-                                    Choice 1
-                                </p>
-                                <input
-                                    placeholder={'For'}
-                                    className={
-                                        'appearance-none bg-transparent text-[14px] leading-[18px] px-2.5 py-1 ' +
-                                        'placeholder:text-slate-600 text-slate-50 border border-slate-600 rounded'
-                                    }
-                                />
-                            </div>
-                            <div
-                                className={
-                                    'flex flex-row space-x-2 items-center'
-                                }
-                            >
-                                <p
-                                    className={
-                                        'text-[14px] leading-[18px] text-slate-300 w-[60px]'
-                                    }
-                                >
-                                    Choice 2
-                                </p>
-                                <input
-                                    placeholder={'Against'}
-                                    className={
-                                        'appearance-none bg-transparent text-[14px] leading-[18px] px-2.5 py-1 ' +
-                                        'placeholder:text-slate-600 text-slate-50 border border-slate-600 rounded'
-                                    }
-                                />
-                            </div>
-                            <div
-                                className={
-                                    'flex flex-row space-x-2 items-center'
-                                }
-                            >
-                                <p
-                                    className={
-                                        'text-[14px] leading-[18px] text-slate-300 w-[60px]'
-                                    }
-                                >
-                                    Choice 3
-                                </p>
-                                <input
-                                    placeholder={'Abstain'}
-                                    className={
-                                        'appearance-none bg-transparent text-[14px] leading-[18px] px-2.5 py-1 ' +
-                                        'placeholder:text-slate-600 text-slate-50 border border-slate-600 rounded'
-                                    }
-                                />
-                            </div>
+                                days
+                            </p>
                         </div>
                     </div>
                 </div>

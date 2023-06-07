@@ -1,21 +1,100 @@
-import React from 'react'
-import { type Task, TaskStatus } from 'src/types/task'
+import React, { useEffect, useState, type KeyboardEvent } from 'react'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
-import { numberWithCommas } from 'src/util'
+import { useParams } from 'react-router-dom'
+import { type Task, TaskStatusMap } from 'src/types/task'
+import { VenomLabel } from 'src/components/VenomLabel'
+import { useAccountStore } from 'src/modules/AccountStore'
+import { Username } from 'src/components/Username'
+import { toNano } from 'src/util'
+import { Comment } from 'src/components/Comment'
 
 export const TaskTemplate = () => {
-    const [isJoined, setIsJoined] = React.useState(false)
+    const { taskId } = useParams()
 
-    const task: Task = {
-        id: 1,
-        title: 'Task 1',
-        description: 'This is a task',
-        status: TaskStatus.InReview,
-        memberAmount: 3,
-        bounty: 100,
-        dueDate: new Date().toDateString(),
+    const [task, setTask] = useState<Task | undefined>(undefined)
+
+    const daoContract = useAccountStore((state) => state.daoContract)
+    const getTask = useAccountStore((state) => state.getTask)
+    const address = useAccountStore((state) => state.address)
+    const setGlobalTask = useAccountStore((state) => state.setTask)
+    const setLoading = useAccountStore((state) => state.setLoading)
+
+    const updateTask = async () => {
+        if (!daoContract) return
+
+        const newTask = await getTask(Number(taskId))
+        setTask(newTask)
     }
+
+    useEffect(() => {
+        if (!daoContract) return
+
+        updateTask()
+    }, [daoContract])
+
+    const handleJoin = async () => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+        const amount = toNano(1)
+
+        await daoContract.methods.claimTask({ taskID: Number(taskId) }).send({
+            from: address,
+            amount,
+        })
+
+        const { value0 } = await daoContract.methods
+            .getTask({ taskID: Number(taskId) })
+            .call()
+        const newTask = {
+            ...value0,
+            id: Number(taskId),
+        }
+        setTask(newTask)
+        setGlobalTask(Number(taskId), newTask)
+        setLoading(false)
+    }
+
+    const addComment = async (message: string) => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+
+        const amount = toNano(1)
+
+        await daoContract.methods
+            .addComment({ taskID: Number(taskId), message })
+            .send({
+                from: address,
+                amount,
+            })
+
+        const { value0 } = await daoContract.methods
+            .getTask({ taskID: Number(taskId) })
+            .call()
+        const newTask = {
+            ...value0,
+            id: Number(taskId),
+        }
+        setTask(newTask)
+        setGlobalTask(Number(taskId), newTask)
+        setLoading(false)
+    }
+
+    const handleSubmit = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        let { value } = e.target as HTMLTextAreaElement
+        if (e.key === 'Enter' && !!value.length) {
+            addComment(value)
+            value = ''
+        }
+    }
+
+    if (!task || !address) return null
+
+    const isJoined =
+        task.assignees.some((assignee) => assignee.equals(address)) ||
+        task.owner.equals(address)
 
     return (
         <div className={'container mx-auto flex flex-col mt-7'}>
@@ -30,9 +109,7 @@ export const TaskTemplate = () => {
                             {task.title}
                         </p>
                         <button
-                            onClick={() => {
-                                setIsJoined(true)
-                            }}
+                            onClick={handleJoin}
                             className={`text-[16px] leading-[20px] 
                                 ${
                                     isJoined
@@ -59,7 +136,7 @@ export const TaskTemplate = () => {
                                     'text-[12px] leading-[15px] text-slate-300 ml-3'
                                 }
                             >
-                                Chelsea Lee
+                                <Username address={task.owner} />
                             </p>
                             <p
                                 className={
@@ -76,42 +153,9 @@ export const TaskTemplate = () => {
                                 1 day ago
                             </p>
                         </div>
-                        <div className={'flex flex-row items-start'}>
-                            <div
-                                className={
-                                    'rounded-full w-[28px] h-[28px] border border-slate-50 bg-red-400'
-                                }
-                            />
-                            <div
-                                className={
-                                    'flex flex-col space-y-2 w-full ml-3'
-                                }
-                            >
-                                <div className={'flex flex-row items-center'}>
-                                    <p
-                                        className={
-                                            'text-[12px] leading-[15px] text-slate-300'
-                                        }
-                                    >
-                                        Satoshi Nakatomo
-                                    </p>
-                                    <p
-                                        className={
-                                            'text-[12px] leading-[15px] text-slate-500 ml-2.5'
-                                        }
-                                    >
-                                        1 day ago
-                                    </p>
-                                </div>
-                                <div
-                                    className={
-                                        'p-3 rounded-lg bg-slate-800 text-slate-200 text-[14px] leading-[17px]'
-                                    }
-                                >
-                                    Nicely done! I proud of you Doku!
-                                </div>
-                            </div>
-                        </div>
+                        {task.comments.map((comment, index) => (
+                            <Comment commentId={Number(comment)} key={index} />
+                        ))}
                         <div className={'flex flex-row space-x-3'}>
                             <div
                                 className={
@@ -119,6 +163,8 @@ export const TaskTemplate = () => {
                                 }
                             />
                             <textarea
+                                placeholder={'Write a comment...'}
+                                onKeyDown={handleSubmit}
                                 className={
                                     'appearance-none w-full bg-slate-700 rounded-lg text-slate-200 text-[14px] leading-[17px] p-3'
                                 }
@@ -135,7 +181,8 @@ export const TaskTemplate = () => {
                         >
                             Status
                         </p>
-                        <TaskStatusLabel status={task.status} />
+                        {/* @ts-ignore */}
+                        <TaskStatusLabel status={TaskStatusMap[task.status]} />
                     </div>
                     <div className={'flex flex-row space-x-2 items-center'}>
                         <p
@@ -158,7 +205,7 @@ export const TaskTemplate = () => {
                                     'text-slate-50 text-[14px] leading-[18px]'
                                 }
                             >
-                                Chelsea Lee
+                                <Username address={task.owner} />
                             </p>
                         </div>
                     </div>
@@ -170,7 +217,11 @@ export const TaskTemplate = () => {
                         >
                             Due Date
                         </p>
-                        <DueDateLabel dueDate={task.dueDate} />
+                        <DueDateLabel
+                            dueDate={new Date(
+                                Number(task.endTime) * 1000
+                            ).toLocaleDateString()}
+                        />
                     </div>
                     <div className={'flex flex-row space-x-2 items-center'}>
                         <p
@@ -180,24 +231,7 @@ export const TaskTemplate = () => {
                         >
                             Bounty
                         </p>
-                        <div
-                            className={'flex flex-row items-center space-x-1.5'}
-                        >
-                            <img
-                                src={'/venom-blue.svg'}
-                                style={{
-                                    width: 24,
-                                    height: 24,
-                                }}
-                            />
-                            <p
-                                className={
-                                    'text-slate-50 text-[14px] leading-[18px]'
-                                }
-                            >
-                                {numberWithCommas(task.bounty)} Venom
-                            </p>
-                        </div>
+                        <VenomLabel amount={task.bounty} isSmall />
                     </div>
                     <div className={'flex flex-row space-x-2'}>
                         <p
@@ -208,7 +242,7 @@ export const TaskTemplate = () => {
                             Assignee
                         </p>
                         <div className={'flex flex-col space-y-4'}>
-                            {Array.from({ length: 7 }).map((_, index) => (
+                            {task.assignees.map((assignee, index) => (
                                 <div
                                     key={index}
                                     className={
@@ -225,7 +259,7 @@ export const TaskTemplate = () => {
                                             'text-slate-50 text-[14px] leading-[18px]'
                                         }
                                     >
-                                        Ieyasu Dokugawa
+                                        <Username address={assignee} />
                                     </p>
                                 </div>
                             ))}

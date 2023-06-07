@@ -1,12 +1,16 @@
 import React from 'react'
-import { numberWithCommas } from 'src/util'
+import { fromNano, numberWithCommas } from 'src/util'
 
 interface VenomLabelProps {
-    amount: number
+    amount: number | string | undefined
     isSmall?: boolean
 }
 
 export const VenomLabel = ({ amount, isSmall }: VenomLabelProps) => {
+    if (!amount) return null
+
+    if (typeof amount === 'string') amount = fromNano(amount)
+
     return (
         <div className={'flex flex-row items-center space-x-2'}>
             <img

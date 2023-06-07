@@ -17,16 +17,6 @@ export const DaoAbi = {
             outputs: [],
         },
         {
-            name: 'setValue',
-            inputs: [{ name: 'val', type: 'uint32' }],
-            outputs: [],
-        },
-        {
-            name: 'addMember',
-            inputs: [{ name: 'key', type: 'uint32' }],
-            outputs: [],
-        },
-        {
             name: 'isMember',
             inputs: [{ name: 'person', type: 'address' }],
             outputs: [{ name: 'exists', type: 'bool' }],
@@ -117,7 +107,8 @@ export const DaoAbi = {
                         { name: 'acceptedTasks', type: 'uint32' },
                         { name: 'appliedTasks', type: 'uint32' },
                         { name: 'accumulatedVotes', type: 'uint32' },
-                        { name: 'isTaskClaimed', type: 'map(uint32,bool)' },
+                        { name: 'createdTasks', type: 'uint32[]' },
+                        { name: 'createdProposals', type: 'uint32[]' },
                     ],
                     name: 'value0',
                     type: 'tuple',
@@ -197,6 +188,26 @@ export const DaoAbi = {
                     type: 'tuple',
                 },
             ],
+        },
+        {
+            name: '_numOfProposals',
+            inputs: [],
+            outputs: [{ name: '_numOfProposals', type: 'uint32' }],
+        },
+        {
+            name: '_numOfTasks',
+            inputs: [],
+            outputs: [{ name: '_numOfTasks', type: 'uint32' }],
+        },
+        {
+            name: '_memberUID',
+            inputs: [],
+            outputs: [{ name: '_memberUID', type: 'uint64' }],
+        },
+        {
+            name: '_numOfComments',
+            inputs: [],
+            outputs: [{ name: '_numOfComments', type: 'uint128' }],
         },
     ],
     data: [{ key: 1, name: '_nonce', type: 'uint256' }],
@@ -290,8 +301,6 @@ export const DaoAbi = {
         { name: '_numOfComments', type: 'uint128' },
         { name: '_managerPublicKey', type: 'uint256' },
         { name: 'memberExists', type: 'map(address,bool)' },
-        { name: '_map1', type: 'uint32[]' },
-        { name: '_value', type: 'uint32' },
         {
             components: [
                 { name: 'uid', type: 'uint64' },
@@ -302,11 +311,13 @@ export const DaoAbi = {
                 { name: 'acceptedTasks', type: 'uint32' },
                 { name: 'appliedTasks', type: 'uint32' },
                 { name: 'accumulatedVotes', type: 'uint32' },
-                { name: 'isTaskClaimed', type: 'map(uint32,bool)' },
+                { name: 'createdTasks', type: 'uint32[]' },
+                { name: 'createdProposals', type: 'uint32[]' },
             ],
             name: 'members',
             type: 'map(address,tuple)',
         },
+        { name: 'isTaskClaimed', type: 'map(address,map(uint32,bool))' },
         {
             components: [
                 { name: 'status', type: 'uint8' },

@@ -1,6 +1,6 @@
 import React from 'react'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
-import { TaskStatus } from 'src/types/task'
+import { type Task, TaskStatus } from 'src/types/task'
 import { SmallTaskBox } from 'src/components/SmallTaskBox'
 
 export const Assigned = () => {
@@ -19,18 +19,8 @@ export const Assigned = () => {
                 </div>
                 <div className={'flex flex-col space-y-3'}>
                     {Array.from({ length: 3 }).map((task, index) => (
-                        <SmallTaskBox
-                            key={index}
-                            task={{
-                                id: index,
-                                title: 'Create a new logo for the company',
-                                dueDate: new Date().toDateString(),
-                                memberAmount: 3,
-                                description: '',
-                                bounty: 30,
-                                status: TaskStatus.InProgress,
-                            }}
-                        />
+                        // eslint-disable-next-line
+                        <SmallTaskBox key={index} task={{} as Task} />
                     ))}
                 </div>
             </div>
@@ -47,18 +37,8 @@ export const Assigned = () => {
                 </div>
                 <div className={'flex flex-col space-y-3'}>
                     {Array.from({ length: 3 }).map((task, index) => (
-                        <SmallTaskBox
-                            key={index}
-                            task={{
-                                id: index,
-                                title: 'Create a new logo for the company',
-                                dueDate: new Date().toDateString(),
-                                memberAmount: 3,
-                                description: '',
-                                bounty: 30,
-                                status: TaskStatus.InReview,
-                            }}
-                        />
+                        // eslint-disable-next-line
+                        <SmallTaskBox key={index} task={{} as Task} />
                     ))}
                 </div>
             </div>
