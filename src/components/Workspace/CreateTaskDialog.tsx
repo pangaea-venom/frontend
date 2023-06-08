@@ -42,25 +42,32 @@ export const CreateTaskDialog = ({ open, onClose }: CreateTaskDialogProps) => {
 
         const duration = Number(input.duration)
 
-        await daoContract.methods
-            .createTask({
-                ...input,
-                bounty,
-                duration,
-            })
-            .send({
-                from: address,
-                amount: sendVal,
-            })
+        try {
+            await daoContract.methods
+                .createTask({
+                    ...input,
+                    bounty,
+                    duration,
+                })
+                .send({
+                    from: address,
+                    amount: sendVal,
+                })
 
-        const user = await daoContract.methods
-            .getMember({ member: address })
-            .call()
-        setAccount(user.value0)
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
 
-        setLoading(false)
-        toast.success('Task created successfully')
-        onClose()
+            setAccount(user.value0)
+
+            toast.success('Task created successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+            onClose()
+        }
     }
 
     return (

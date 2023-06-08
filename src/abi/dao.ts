@@ -82,14 +82,6 @@ export const DaoAbi = {
         },
         { name: 'claimBounty', inputs: [], outputs: [] },
         {
-            name: 'addComment',
-            inputs: [
-                { name: 'taskID', type: 'uint32' },
-                { name: 'message', type: 'string' },
-            ],
-            outputs: [],
-        },
-        {
             name: 'cancelTask',
             inputs: [{ name: 'taskID', type: 'uint32' }],
             outputs: [],
@@ -109,6 +101,7 @@ export const DaoAbi = {
                         { name: 'acceptedTasks', type: 'uint32' },
                         { name: 'accumulatedVotes', type: 'uint32' },
                         { name: 'appliedTasks', type: 'uint32[]' },
+                        { name: 'submittedTasks', type: 'uint32[]' },
                         { name: 'createdTasks', type: 'uint32[]' },
                         { name: 'createdProposals', type: 'uint32[]' },
                     ],
@@ -148,10 +141,7 @@ export const DaoAbi = {
             ],
             outputs: [
                 {
-                    components: [
-                        { name: 'status', type: 'uint8' },
-                        { name: 'submission', type: 'string' },
-                    ],
+                    components: [{ name: 'status', type: 'uint8' }],
                     name: 'value0',
                     type: 'tuple',
                 },
@@ -305,15 +295,6 @@ export const DaoAbi = {
             inputs: [{ name: 'ProposalID', type: 'uint32' }],
             outputs: [],
         },
-        {
-            name: 'CommentPosted',
-            inputs: [
-                { name: 'TaskId', type: 'uint32' },
-                { name: 'member', type: 'address' },
-                { name: 'CommentId', type: 'uint128' },
-            ],
-            outputs: [],
-        },
     ],
     fields: [
         { name: '_pubkey', type: 'uint256' },
@@ -337,6 +318,7 @@ export const DaoAbi = {
                 { name: 'acceptedTasks', type: 'uint32' },
                 { name: 'accumulatedVotes', type: 'uint32' },
                 { name: 'appliedTasks', type: 'uint32[]' },
+                { name: 'submittedTasks', type: 'uint32[]' },
                 { name: 'createdTasks', type: 'uint32[]' },
                 { name: 'createdProposals', type: 'uint32[]' },
             ],
@@ -345,10 +327,7 @@ export const DaoAbi = {
         },
         { name: 'isTaskClaimed', type: 'map(address,map(uint32,bool))' },
         {
-            components: [
-                { name: 'status', type: 'uint8' },
-                { name: 'submission', type: 'string' },
-            ],
+            components: [{ name: 'status', type: 'uint8' }],
             name: 'assigneeToTask',
             type: 'map(address,map(uint32,tuple))',
         },

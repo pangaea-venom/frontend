@@ -51,12 +51,19 @@ function App() {
 
         const amount = toNano(2)
 
-        await daoContract.methods.joinDao({ name: username }).send({
-            from: address,
-            amount,
-        })
+        try {
+            await daoContract.methods.joinDao({ name: username }).send({
+                from: address,
+                amount,
+            })
 
-        await checkIfMember()
+            await checkIfMember()
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     useEffect(() => {

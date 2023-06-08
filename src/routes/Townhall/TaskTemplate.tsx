@@ -51,27 +51,37 @@ export const TaskTemplate = () => {
         setLoading(true)
         const amount = toNano(1)
 
-        await daoContract.methods.claimTask({ taskID: Number(taskId) }).send({
-            from: address,
-            amount,
-        })
+        try {
+            await daoContract.methods
+                .claimTask({ taskID: Number(taskId) })
+                .send({
+                    from: address,
+                    amount,
+                })
 
-        const { value0 } = await daoContract.methods
-            .getTask({ taskID: Number(taskId) })
-            .call()
-        const newTask = {
-            ...value0,
-            id: Number(taskId),
+            const { value0 } = await daoContract.methods
+                .getTask({ taskID: Number(taskId) })
+                .call()
+            const newTask = {
+                ...value0,
+                id: Number(taskId),
+            }
+
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
+            setAccount(user.value0)
+
+            setTask(newTask)
+            setGlobalTask(Number(taskId), newTask)
+
+            toast.success('Successfully joined task')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
         }
-
-        const user = await daoContract.methods
-            .getMember({ member: address })
-            .call()
-        setAccount(user.value0)
-
-        setTask(newTask)
-        setGlobalTask(Number(taskId), newTask)
-        setLoading(false)
     }
 
     const addComment = async () => {
@@ -86,27 +96,34 @@ export const TaskTemplate = () => {
 
         const amount = toNano(1)
 
-        await daoContract.methods
-            .addComment({ taskID: Number(taskId), message: comment })
-            .send({
-                from: address,
-                amount,
-            })
+        try {
+            await daoContract.methods
+                .submitTask({ taskID: Number(taskId), submission: comment })
+                .send({
+                    from: address,
+                    amount,
+                })
 
-        const { value0 } = await daoContract.methods
-            .getTask({ taskID: Number(taskId) })
-            .call()
-        const newTask = {
-            ...value0,
-            id: Number(taskId),
+            const { value0 } = await daoContract.methods
+                .getTask({ taskID: Number(taskId) })
+                .call()
+            const newTask = {
+                ...value0,
+                id: Number(taskId),
+            }
+            setTask(newTask)
+            setGlobalTask(Number(taskId), newTask)
+            if (commentRef.current) {
+                commentRef.current.value = ''
+                setComment('')
+            }
+            toast.success('Comment added successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
         }
-        setTask(newTask)
-        setGlobalTask(Number(taskId), newTask)
-        if (commentRef.current) {
-            commentRef.current.value = ''
-            setComment('')
-        }
-        setLoading(false)
     }
 
     const handleSubmit = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -122,21 +139,28 @@ export const TaskTemplate = () => {
 
         const amount = toNano(2)
 
-        await daoContract.methods.cancelTask({ taskID: Number(taskId) }).send({
-            from: address,
-            amount,
-        })
+        try {
+            await daoContract.methods
+                .cancelTask({ taskID: Number(taskId) })
+                .send({
+                    from: address,
+                    amount,
+                })
 
-        const user = await daoContract.methods
-            .getMember({ member: address })
-            .call()
-        setAccount(user.value0)
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
+            setAccount(user.value0)
 
-        setGlobalTask(Number(taskId), undefined)
-        toast.success('Task cancelled successfully')
-        navigate('/', { replace: true })
-
-        setLoading(false)
+            setGlobalTask(Number(taskId), undefined)
+            toast.success('Task cancelled successfully')
+            navigate('/', { replace: true })
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const startReview = async () => {
@@ -146,24 +170,32 @@ export const TaskTemplate = () => {
 
         const amount = toNano(1)
 
-        await daoContract.methods.startReview({ taskID: Number(taskId) }).send({
-            from: address,
-            amount,
-        })
+        try {
+            await daoContract.methods
+                .startReview({ taskID: Number(taskId) })
+                .send({
+                    from: address,
+                    amount,
+                })
 
-        const { value0 } = await daoContract.methods
-            .getTask({ taskID: Number(taskId) })
-            .call()
+            const { value0 } = await daoContract.methods
+                .getTask({ taskID: Number(taskId) })
+                .call()
 
-        const newTask = {
-            ...value0,
-            id: Number(taskId),
+            const newTask = {
+                ...value0,
+                id: Number(taskId),
+            }
+
+            setTask(newTask)
+            setGlobalTask(Number(taskId), newTask)
+            toast.success('Review started successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
         }
-
-        setTask(newTask)
-        setGlobalTask(Number(taskId), newTask)
-        setLoading(false)
-        toast.success('Review started successfully')
     }
 
     const finishReview = async () => {
@@ -173,17 +205,35 @@ export const TaskTemplate = () => {
 
         const amount = toNano(1)
 
-        await daoContract.methods
-            .finishReview({ taskID: Number(taskId), winner: selectedAssignee })
-            .send({
-                from: address,
-                amount,
-            })
+        try {
+            await daoContract.methods
+                .finishReview({
+                    taskID: Number(taskId),
+                    winner: selectedAssignee,
+                })
+                .send({
+                    from: address,
+                    amount,
+                })
+            const { value0 } = await daoContract.methods
+                .getTask({ taskID: Number(taskId) })
+                .call()
 
-        setGlobalTask(Number(taskId), undefined)
-        navigate('/', { replace: true })
-        setLoading(false)
-        toast.success('Review finished successfully')
+            const newTask = {
+                ...value0,
+                id: Number(taskId),
+            }
+
+            setTask(newTask)
+            setGlobalTask(Number(taskId), newTask)
+            navigate('/', { replace: true })
+            toast.success('Review finished successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (!task || !address) return null

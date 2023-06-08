@@ -15,8 +15,6 @@ export const ToReview = () => {
     const updateTasks = () => {
         if (!account) return
 
-        console.log(account.createdTasks)
-
         account.createdTasks.forEach(async (task) => {
             const taskData = await getTask(Number(task))
             if (

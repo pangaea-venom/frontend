@@ -102,14 +102,7 @@ export const ProposalTemplate = () => {
                                     'text-[12px] leading-[15px] text-slate-300 font-medium'
                                 }
                             >
-                                97 addresses
-                            </p>
-                            <p
-                                className={
-                                    'text-[12px] leading-[15px] text-slate-300 font-medium'
-                                }
-                            >
-                                1,502 Votes
+                                {numberWithCommas(totalCount)} Votes
                             </p>
                         </div>
                         <div className={'flex flex-col space-y-[1px]'}>
@@ -146,7 +139,7 @@ export const ProposalTemplate = () => {
                                             'text-[14px] leading-[18px] text-slate-200 w-[60px]'
                                         }
                                     >
-                                        283 Votes
+                                        {numberWithCommas(yesCount)} Votes
                                     </p>
                                     <div
                                         className={
@@ -192,7 +185,7 @@ export const ProposalTemplate = () => {
                                             'text-[14px] leading-[18px] text-slate-200 w-[60px]'
                                         }
                                     >
-                                        125 Votes
+                                        {numberWithCommas(noCount)} Votes
                                     </p>
                                     <div
                                         className={
@@ -275,13 +268,6 @@ export const ProposalTemplate = () => {
                             }
                         >
                             {numberWithCommas(totalCount)} Votes
-                        </p>
-                        <p
-                            className={
-                                'text-[14px] leading-[18px] text-slate-500'
-                            }
-                        >
-                            97 addresses
                         </p>
                     </div>
                     <div className={'flex flex-col space-y-4 w-full'}>

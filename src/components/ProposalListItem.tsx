@@ -157,13 +157,6 @@ export const ProposalListItem = ({
                         >
                             {totalCount} Votes
                         </p>
-                        <p
-                            className={
-                                'text-[14px] leading-[18px] text-slate-500'
-                            }
-                        >
-                            {totalCount} addresses
-                        </p>
                     </div>
                 </div>
             ) : null}

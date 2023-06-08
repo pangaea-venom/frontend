@@ -43,24 +43,29 @@ export const CreateProposalDialog = ({
 
         const duration = Number(input.duration) * 60 * 60 * 24
 
-        await daoContract.methods
-            .createProposal({
-                ...input,
-                duration,
-            })
-            .send({
-                from: address,
-                amount: sendVal,
-            })
+        try {
+            await daoContract.methods
+                .createProposal({
+                    ...input,
+                    duration,
+                })
+                .send({
+                    from: address,
+                    amount: sendVal,
+                })
 
-        const user = await daoContract.methods
-            .getMember({ member: address })
-            .call()
-        setAccount(user.value0)
-
-        setLoading(false)
-        toast.success('Proposal created successfully')
-        onClose()
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
+            setAccount(user.value0)
+            toast.success('Proposal created successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+            onClose()
+        }
     }
 
     return (

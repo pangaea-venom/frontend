@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Header } from 'src/components/Header'
 import { EverscaleStandaloneClient } from 'everscale-standalone-client'
 import { VenomConnect } from 'venom-connect'
@@ -25,6 +25,9 @@ export const Root = () => {
 
     const daoContract = useAccountStore((state) => state.daoContract)
     const setDaoContract = useAccountStore((state) => state.setDaoContract)
+
+    const navigator = useNavigate()
+    const location = useLocation()
 
     const standaloneFallback = async () =>
         await EverscaleStandaloneClient.create({
@@ -154,7 +157,7 @@ export const Root = () => {
     useEffect(() => {
         if (venomProvider && address) {
             const contractAddress = new Address(
-                '0:3ae42d3a14c26a2e9c31d1b227add43a76870244f2bceb48223edc69292dd66a'
+                '0:69ed24b3c9ba5e92cdeae0b01bd94f4eb6ae63bff88edbfd3bf65980dc121dde'
             )
             const _daoContract = new venomProvider.Contract(
                 DaoAbi,
@@ -177,6 +180,10 @@ export const Root = () => {
                 .getMember({ member: address })
                 .call()
             setAccount(user.value0)
+        } else {
+            if (location.pathname !== '/') {
+                navigator('/', { replace: true })
+            }
         }
 
         setLoading(false)

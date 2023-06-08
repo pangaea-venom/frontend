@@ -20,6 +20,7 @@ interface Account {
     accumulatedVotes: string
     createdProposals: string[]
     createdTasks: string[]
+    submittedTasks: string[]
 }
 
 interface AccountStore {

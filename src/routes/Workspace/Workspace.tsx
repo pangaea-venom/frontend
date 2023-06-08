@@ -30,18 +30,24 @@ export const Workspace = () => {
 
         const amount = toNano(1)
 
-        await daoContract.methods.claimBounty().send({
-            from: address,
-            amount,
-        })
+        try {
+            await daoContract.methods.claimBounty().send({
+                from: address,
+                amount,
+            })
 
-        const user = await daoContract.methods
-            .getMember({ member: address })
-            .call()
-        setAccount(user.value0)
+            const user = await daoContract.methods
+                .getMember({ member: address })
+                .call()
+            setAccount(user.value0)
 
-        setLoading(false)
-        toast.success('Claimed bounty successfully')
+            toast.success('Claimed bounty successfully')
+        } catch (e) {
+            // @ts-ignore
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const balance = useAccountStore((state) => state.balance)
