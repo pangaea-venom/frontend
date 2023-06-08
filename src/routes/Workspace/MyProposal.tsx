@@ -40,9 +40,15 @@ export const MyProposal = () => {
 
     return (
         <div className="flex flex-col space-y-2">
-            {proposals.map((proposal, index) => (
-                <ProposalListItem key={index} isMine proposal={proposal} />
-            ))}
+            {proposals.length ? (
+                proposals.map((proposal, index) => (
+                    <ProposalListItem key={index} isMine proposal={proposal} />
+                ))
+            ) : (
+                <div className="text-center text-gray-500">
+                    No proposals created
+                </div>
+            )}
         </div>
     )
 }

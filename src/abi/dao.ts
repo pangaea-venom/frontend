@@ -63,6 +63,15 @@ export const DaoAbi = {
             outputs: [],
         },
         {
+            name: 'castVoteWithPower',
+            inputs: [
+                { name: 'proposalID', type: 'uint32' },
+                { name: 'val', type: 'uint8' },
+                { name: 'power', type: 'uint128' },
+            ],
+            outputs: [],
+        },
+        {
             name: 'finalizeVote',
             inputs: [{ name: 'proposalID', type: 'uint32' }],
             outputs: [],
@@ -99,7 +108,7 @@ export const DaoAbi = {
                         { name: 'totalEarnings', type: 'uint128' },
                         { name: 'assigned', type: 'uint128' },
                         { name: 'acceptedTasks', type: 'uint32' },
-                        { name: 'accumulatedVotes', type: 'uint32' },
+                        { name: 'accumulatedVotes', type: 'uint128' },
                         { name: 'appliedTasks', type: 'uint32[]' },
                         { name: 'submittedTasks', type: 'uint32[]' },
                         { name: 'createdTasks', type: 'uint32[]' },
@@ -174,6 +183,8 @@ export const DaoAbi = {
                         { name: 'yes', type: 'uint32' },
                         { name: 'no', type: 'uint32' },
                         { name: 'abstain', type: 'uint32' },
+                        { name: 'locks', type: 'address[]' },
+                        { name: 'singles', type: 'address[]' },
                         { name: 'status', type: 'uint8' },
                     ],
                     name: 'value0',
@@ -195,6 +206,22 @@ export const DaoAbi = {
                     type: 'tuple',
                 },
             ],
+        },
+        {
+            name: 'getVoteCast',
+            inputs: [
+                { name: 'proposalID', type: 'uint32' },
+                { name: 'voter', type: 'address' },
+            ],
+            outputs: [{ name: 'value0', type: 'uint8' }],
+        },
+        {
+            name: 'getVoteLock',
+            inputs: [
+                { name: 'proposalID', type: 'uint32' },
+                { name: 'voter', type: 'address' },
+            ],
+            outputs: [{ name: 'value0', type: 'uint128' }],
         },
         {
             name: '_numOfProposals',
@@ -316,7 +343,7 @@ export const DaoAbi = {
                 { name: 'totalEarnings', type: 'uint128' },
                 { name: 'assigned', type: 'uint128' },
                 { name: 'acceptedTasks', type: 'uint32' },
-                { name: 'accumulatedVotes', type: 'uint32' },
+                { name: 'accumulatedVotes', type: 'uint128' },
                 { name: 'appliedTasks', type: 'uint32[]' },
                 { name: 'submittedTasks', type: 'uint32[]' },
                 { name: 'createdTasks', type: 'uint32[]' },
@@ -326,6 +353,8 @@ export const DaoAbi = {
             type: 'map(address,tuple)',
         },
         { name: 'isTaskClaimed', type: 'map(address,map(uint32,bool))' },
+        { name: 'voteLocks', type: 'map(uint32,map(address,uint128))' },
+        { name: 'voteCast', type: 'map(uint32,map(address,uint8))' },
         {
             components: [{ name: 'status', type: 'uint8' }],
             name: 'assigneeToTask',
@@ -374,6 +403,8 @@ export const DaoAbi = {
                 { name: 'yes', type: 'uint32' },
                 { name: 'no', type: 'uint32' },
                 { name: 'abstain', type: 'uint32' },
+                { name: 'locks', type: 'address[]' },
+                { name: 'singles', type: 'address[]' },
                 { name: 'status', type: 'uint8' },
             ],
             name: 'votes',

@@ -157,7 +157,7 @@ export const Root = () => {
     useEffect(() => {
         if (venomProvider && address) {
             const contractAddress = new Address(
-                '0:69ed24b3c9ba5e92cdeae0b01bd94f4eb6ae63bff88edbfd3bf65980dc121dde'
+                '0:273b7a6178647dac631eb60c1b67f21434cada7c3879307291d76bbc8324813d'
             )
             const _daoContract = new venomProvider.Contract(
                 DaoAbi,

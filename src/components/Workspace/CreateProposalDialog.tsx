@@ -58,7 +58,7 @@ export const CreateProposalDialog = ({
                 .getMember({ member: address })
                 .call()
             setAccount(user.value0)
-            toast.success('ProposalPage created successfully')
+            toast.success('Proposal created successfully')
         } catch (e) {
             // @ts-ignore
             toast.error(e.message)
@@ -77,7 +77,7 @@ export const CreateProposalDialog = ({
             >
                 <input
                     onChange={handleChange}
-                    placeholder={'ProposalPage title'}
+                    placeholder={'Proposal title'}
                     name={'title'}
                     className={
                         'appearance-none bg-transparent text-[24px] leading-[30px] ' +

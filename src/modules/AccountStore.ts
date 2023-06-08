@@ -54,6 +54,18 @@ interface AccountStore {
     commentMap: Map<number, Comment>
     setComment: (id: number, comment: Comment) => void
     getComment: (id: number) => Promise<Comment | undefined>
+    voteCastMap: Map<number, Map<Address, string>>
+    voteLockMap: Map<number, Map<Address, string>>
+    setVoteCast: (proposalId: number, account: Address, vote: string) => void
+    setVoteLock: (proposalId: number, account: Address, vote: string) => void
+    getVoteCast: (
+        proposalId: number,
+        account: Address
+    ) => Promise<string | undefined>
+    getVoteLock: (
+        proposalId: number,
+        account: Address
+    ) => Promise<string | undefined>
 }
 
 export const useAccountStore = create<AccountStore>()((set, get) => ({
@@ -213,5 +225,72 @@ export const useAccountStore = create<AccountStore>()((set, get) => ({
         const setComment = get().setComment
         setComment(id, newComment)
         return newComment
+    },
+    voteCastMap: new Map<number, Map<Address, string>>(),
+    voteLockMap: new Map<number, Map<Address, string>>(),
+    setVoteCast: (proposalId, account, vote) => {
+        set((state) => {
+            const newVoteCastMap = new Map(state.voteCastMap)
+            if (!newVoteCastMap.has(proposalId))
+                newVoteCastMap.set(proposalId, new Map())
+            newVoteCastMap.get(proposalId)?.set(account, vote)
+            return { voteCastMap: newVoteCastMap }
+        })
+    },
+    setVoteLock: (proposalId, account, vote) => {
+        set((state) => {
+            const newVoteLockMap = new Map(state.voteLockMap)
+            if (!newVoteLockMap.has(proposalId))
+                newVoteLockMap.set(proposalId, new Map())
+            newVoteLockMap.get(proposalId)?.set(account, vote)
+            return { voteLockMap: newVoteLockMap }
+        })
+    },
+    getVoteCast: async (proposalId, account) => {
+        const voteCastMap = get().voteCastMap
+        if (
+            voteCastMap.has(proposalId) &&
+            voteCastMap.get(proposalId)?.has(account)
+        )
+            return voteCastMap.get(proposalId)?.get(account)
+
+        const daoContract = get().daoContract
+
+        if (!daoContract) return undefined
+
+        const { value0 } = await daoContract.methods
+            .getVoteCast({ proposalID: proposalId, voter: account })
+            .call()
+
+        const setVoteCast = get().setVoteCast
+        setVoteCast(proposalId, account, value0)
+        return value0
+    },
+    getVoteLock: async (proposalId, account) => {
+        const voteLockMap = get().voteLockMap
+
+        if (
+            voteLockMap.has(proposalId) &&
+            voteLockMap.get(proposalId)?.has(account)
+        )
+            return voteLockMap.get(proposalId)?.get(account)
+
+        const daoContract = get().daoContract
+
+        if (!daoContract) return undefined
+
+        const { value0 } = await daoContract.methods
+            .getVoteLock({ proposalID: proposalId, voter: account })
+            .call()
+
+        const setVoteLock = get().setVoteLock
+
+        if (value0 === '0') {
+            setVoteLock(proposalId, account, '1')
+            return '1'
+        }
+
+        setVoteLock(proposalId, account, value0)
+        return value0
     },
 }))

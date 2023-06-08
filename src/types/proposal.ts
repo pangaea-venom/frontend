@@ -37,4 +37,6 @@ export interface Proposal {
     yes: string
     no: string
     abstain: string
+    singles: Address[]
+    locks: Address[]
 }
