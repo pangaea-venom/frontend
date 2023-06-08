@@ -6,14 +6,19 @@ import { type Task, TaskStatusMap } from 'src/types/task'
 import { VenomLabel } from 'src/components/VenomLabel'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { Username } from 'src/components/Username'
-import { toNano } from 'src/util'
+import { toDate, toNano } from 'src/util'
 import { Comment } from 'src/components/Comment'
 import { toast } from 'react-toastify'
+import { type Address } from 'everscale-inpage-provider'
 
 export const TaskTemplate = () => {
     const { taskId } = useParams()
 
     const [task, setTask] = useState<Task | undefined>(undefined)
+    const [selectedAssignee, setSelectedAssignee] = useState<
+        Address | undefined
+    >(undefined)
+    const [open, setOpen] = useState(false)
 
     const navigate = useNavigate()
 
@@ -112,6 +117,51 @@ export const TaskTemplate = () => {
         setLoading(false)
     }
 
+    const startReview = async () => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+
+        const amount = toNano(1)
+
+        await daoContract.methods.startReview({ taskID: Number(taskId) }).send({
+            from: address,
+            amount,
+        })
+
+        const { value0 } = await daoContract.methods
+            .getTask({ taskID: Number(taskId) })
+            .call()
+        const newTask = {
+            ...value0,
+            id: Number(taskId),
+        }
+        setTask(newTask)
+        setGlobalTask(Number(taskId), newTask)
+        setLoading(false)
+        toast.success('Review started successfully')
+    }
+
+    const finishReview = async () => {
+        if (!daoContract || !address || !selectedAssignee) return
+
+        setLoading(true)
+
+        const amount = toNano(1)
+
+        await daoContract.methods
+            .finishReview({ taskID: Number(taskId), winner: selectedAssignee })
+            .send({
+                from: address,
+                amount,
+            })
+
+        setGlobalTask(Number(taskId), undefined)
+        navigate('/', { replace: true })
+        setLoading(false)
+        toast.success('Review finished successfully')
+    }
+
     if (!task || !address) return null
 
     const isJoined = task.assignees.some((assignee) => assignee.equals(address))
@@ -205,17 +255,34 @@ export const TaskTemplate = () => {
                         </div>
                     </div>
                 </div>
-                <div className={'flex flex-col shrink-0 space-y-6'}>
-                    <div className={'flex flex-row space-x-2 items-center'}>
-                        <p
-                            className={
-                                'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
-                            }
-                        >
-                            Status
-                        </p>
-                        {/* @ts-ignore */}
-                        <TaskStatusLabel status={TaskStatusMap[task.status]} />
+                <div
+                    className={'flex flex-col shrink-0 space-y-6 basis-[230px]'}
+                >
+                    <div className={'flex flex-col space-y-2'}>
+                        <div className={'flex flex-row space-x-2 items-center'}>
+                            <p
+                                className={
+                                    'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
+                                }
+                            >
+                                Status
+                            </p>
+                            {/* @ts-ignore */}
+                            <TaskStatusLabel
+                                status={TaskStatusMap[task.status]}
+                            />
+                        </div>
+                        {isMine &&
+                        task.status === '0' &&
+                        toDate(task.endTime) < new Date() ? (
+                            <button
+                                onClick={startReview}
+                                className={`text-[14px] leading-[17px] 
+                                            text-sky-50 bg-sky-500 py-1 rounded`}
+                            >
+                                Start review
+                            </button>
+                        ) : null}
                     </div>
                     {!isMine ? (
                         <div className={'flex flex-row space-x-2 items-center'}>
@@ -270,38 +337,154 @@ export const TaskTemplate = () => {
                         </p>
                         <VenomLabel amount={task.bounty} isSmall />
                     </div>
-                    <div className={'flex flex-row space-x-2'}>
-                        <p
-                            className={
-                                'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
-                            }
-                        >
-                            Assignee
-                        </p>
-                        <div className={'flex flex-col space-y-4'}>
-                            {task.assignees.map((assignee, index) => (
-                                <div
-                                    key={index}
+                    {isMine && task.status === '1' ? (
+                        <div className={'flex flex-col space-y-3'}>
+                            <p
+                                className={
+                                    'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1'
+                                }
+                            >
+                                Choose the member
+                            </p>
+                            <div className="relative">
+                                <button
+                                    onClick={() => {
+                                        setOpen(!open)
+                                    }}
                                     className={
-                                        'flex flex-row items-center space-x-1.5'
+                                        'flex items-center rounded ' +
+                                        'bg-slate-700 border border-slate-600 py-3 px-4 flex-row justify-between w-full'
                                     }
                                 >
                                     <div
                                         className={
-                                            'rounded-full w-[16px] h-[16px] bg-red-400'
-                                        }
-                                    />
-                                    <p
-                                        className={
-                                            'text-slate-50 text-[14px] leading-[18px]'
+                                            'flex flex-row items-center space-x-1.5'
                                         }
                                     >
-                                        <Username address={assignee} />
-                                    </p>
-                                </div>
-                            ))}
+                                        <div
+                                            className={
+                                                'rounded-full w-[16px] h-[16px] bg-red-400'
+                                            }
+                                        />
+                                        <p
+                                            className={
+                                                'text-slate-50 text-[14px] leading-[18px]'
+                                            }
+                                        >
+                                            {selectedAssignee ? (
+                                                <Username
+                                                    address={selectedAssignee}
+                                                />
+                                            ) : null}
+                                        </p>
+                                    </div>
+                                    <span>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            className="h-5 w-5"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </span>
+                                </button>
+                                <ul
+                                    className={
+                                        'absolute z-[1000] float-left m-0 inset-x-0 top-[100%] ' +
+                                        'min-w-max list-none rounded border-none ' +
+                                        'bg-clip-padding shadow-lg ' +
+                                        (open ? 'block' : 'hidden')
+                                    }
+                                >
+                                    {task.assignees.map((assignee, index) => (
+                                        <li
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedAssignee(assignee)
+                                                setOpen(false)
+                                            }}
+                                        >
+                                            <div
+                                                className={
+                                                    'flex items-center rounded ' +
+                                                    'bg-slate-700 hover:bg-slate-800 cursor-pointer' +
+                                                    ' border border-slate-600 py-3 px-4' +
+                                                    ' flex-row justify-between w-full'
+                                                }
+                                            >
+                                                <div
+                                                    className={
+                                                        'flex flex-row items-center space-x-1.5'
+                                                    }
+                                                >
+                                                    <div
+                                                        className={
+                                                            'rounded-full w-[16px] h-[16px] bg-red-400'
+                                                        }
+                                                    />
+                                                    <p
+                                                        className={
+                                                            'text-slate-50 text-[14px] leading-[18px]'
+                                                        }
+                                                    >
+                                                        <Username
+                                                            address={assignee}
+                                                        />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <button
+                                onClick={finishReview}
+                                className={`text-[16px] leading-[20px] 
+                                            text-sky-50 bg-sky-500
+                                font-medium py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                Confirm
+                            </button>
                         </div>
-                    </div>
+                    ) : (
+                        <div className={'flex flex-row space-x-2'}>
+                            <p
+                                className={
+                                    'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
+                                }
+                            >
+                                Assignee
+                            </p>
+                            <div className={'flex flex-col space-y-4'}>
+                                {task.assignees.map((assignee, index) => (
+                                    <div
+                                        key={index}
+                                        className={
+                                            'flex flex-row items-center space-x-1.5'
+                                        }
+                                    >
+                                        <div
+                                            className={
+                                                'rounded-full w-[16px] h-[16px] bg-red-400'
+                                            }
+                                        />
+                                        <p
+                                            className={
+                                                'text-slate-50 text-[14px] leading-[18px]'
+                                            }
+                                        >
+                                            <Username address={assignee} />
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

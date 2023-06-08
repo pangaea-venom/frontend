@@ -12,6 +12,10 @@ export const fromNano = (x: string) => {
     return new BigNumber(x).shiftedBy(-9).toNumber()
 }
 
+export const toDate = (timestamp: string) => {
+    return new Date(Number(timestamp) * 1000)
+}
+
 export const toDateString = (timestamp: string) => {
-    return new Date(Number(timestamp) * 1000).toLocaleDateString()
+    return toDate(timestamp).toLocaleDateString()
 }

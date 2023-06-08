@@ -2,6 +2,7 @@ import React from 'react'
 import { TaskBox } from 'src/components/TaskBox'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { type Task } from 'src/types/task'
+import { toDate } from 'src/util'
 
 export const OpenedTasks = () => {
     const numOfTasks = useAccountStore((state) => state.numOfTasks)
@@ -18,10 +19,13 @@ export const OpenedTasks = () => {
             const taskId = numOfTasks - index
             const taskData = await getTask(taskId)
 
-            console.log(taskData)
-
             // @ts-ignore
-            if (taskIds[taskId] || taskData?.status === '3') return
+            if (
+                taskIds[taskId] ||
+                taskData?.status === '3' ||
+                toDate(taskData?.endTime) < new Date()
+            )
+                return
             setTaskIds((prev) => ({
                 ...prev,
                 [taskId]: true,

@@ -21,7 +21,7 @@ export const Username = ({ address }: UsernameProps) => {
         if (!daoContract) return
 
         updateMember()
-    }, [])
+    }, [address])
 
     return <>{username}</>
 }
