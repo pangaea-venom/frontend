@@ -80,6 +80,7 @@ export const DaoAbi = {
             ],
             outputs: [],
         },
+        { name: 'claimBounty', inputs: [], outputs: [] },
         {
             name: 'addComment',
             inputs: [
@@ -103,10 +104,11 @@ export const DaoAbi = {
                         { name: 'name', type: 'string' },
                         { name: 'points', type: 'uint128' },
                         { name: 'earned', type: 'uint128' },
+                        { name: 'totalEarnings', type: 'uint128' },
                         { name: 'assigned', type: 'uint128' },
                         { name: 'acceptedTasks', type: 'uint32' },
-                        { name: 'appliedTasks', type: 'uint32' },
                         { name: 'accumulatedVotes', type: 'uint32' },
+                        { name: 'appliedTasks', type: 'uint32[]' },
                         { name: 'createdTasks', type: 'uint32[]' },
                         { name: 'createdProposals', type: 'uint32[]' },
                     ],
@@ -190,6 +192,21 @@ export const DaoAbi = {
             ],
         },
         {
+            name: 'getComment',
+            inputs: [{ name: 'commentID', type: 'uint128' }],
+            outputs: [
+                {
+                    components: [
+                        { name: 'postTime', type: 'uint32' },
+                        { name: 'commenter', type: 'address' },
+                        { name: 'comment', type: 'string' },
+                    ],
+                    name: 'value0',
+                    type: 'tuple',
+                },
+            ],
+        },
+        {
             name: '_numOfProposals',
             inputs: [],
             outputs: [{ name: '_numOfProposals', type: 'uint32' }],
@@ -260,6 +277,14 @@ export const DaoAbi = {
             outputs: [],
         },
         {
+            name: 'BountyPaid',
+            inputs: [
+                { name: 'member', type: 'address' },
+                { name: 'bounty', type: 'uint128' },
+            ],
+            outputs: [],
+        },
+        {
             name: 'ProposalCreated',
             inputs: [
                 { name: 'owner', type: 'address' },
@@ -307,10 +332,11 @@ export const DaoAbi = {
                 { name: 'name', type: 'string' },
                 { name: 'points', type: 'uint128' },
                 { name: 'earned', type: 'uint128' },
+                { name: 'totalEarnings', type: 'uint128' },
                 { name: 'assigned', type: 'uint128' },
                 { name: 'acceptedTasks', type: 'uint32' },
-                { name: 'appliedTasks', type: 'uint32' },
                 { name: 'accumulatedVotes', type: 'uint32' },
+                { name: 'appliedTasks', type: 'uint32[]' },
                 { name: 'createdTasks', type: 'uint32[]' },
                 { name: 'createdProposals', type: 'uint32[]' },
             ],

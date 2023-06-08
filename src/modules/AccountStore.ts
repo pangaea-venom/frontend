@@ -6,7 +6,7 @@ import {
     type ProviderRpcClient,
 } from 'everscale-inpage-provider'
 import { type DaoAbi } from 'src/abi/dao'
-import { type Task } from 'src/types/task'
+import { type Task, type Comment } from 'src/types/task'
 import { type Proposal } from 'src/types/proposal'
 
 interface Account {
@@ -16,7 +16,7 @@ interface Account {
     earned: string
     assigned: string
     acceptedTasks: string
-    appliedTasks: string
+    appliedTasks: string[]
     accumulatedVotes: string
     createdProposals: string[]
     createdTasks: string[]
@@ -50,6 +50,9 @@ interface AccountStore {
     proposalMap: Map<number, Proposal>
     setProposal: (id: number, proposal: Proposal) => void
     getProposal: (id: number) => Promise<Proposal | undefined>
+    commentMap: Map<number, Comment>
+    setComment: (id: number, comment: Comment) => void
+    getComment: (id: number) => Promise<Comment | undefined>
 }
 
 export const useAccountStore = create<AccountStore>()((set, get) => ({
@@ -179,5 +182,35 @@ export const useAccountStore = create<AccountStore>()((set, get) => ({
         const setProposal = get().setProposal
         setProposal(id, newProposal)
         return newProposal
+    },
+    commentMap: new Map<number, Comment>(),
+    setComment: (id, comment) => {
+        set((state) => {
+            const newCommentMap = new Map(state.commentMap)
+            newCommentMap.set(id, comment)
+            return { commentMap: newCommentMap }
+        })
+    },
+    getComment: async (id) => {
+        const commentMap = get().commentMap
+        const comment = commentMap.get(id)
+        if (comment) return comment
+
+        const daoContract = get().daoContract
+
+        if (!daoContract) return undefined
+
+        const { value0 } = await daoContract.methods
+            .getComment({ commentID: id })
+            .call()
+
+        const newComment = {
+            ...value0,
+            id,
+        }
+
+        const setComment = get().setComment
+        setComment(id, newComment)
+        return newComment
     },
 }))

@@ -3,6 +3,7 @@ import { type Task, TaskResultStatus } from 'src/types/task'
 import { TaskResultStatusLabel } from 'src/components/TaskResultStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
+import { useNavigate } from 'react-router-dom'
 
 interface TaskListItemProps {
     task: Task
@@ -10,8 +11,20 @@ interface TaskListItemProps {
 }
 
 export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
+    const navigate = useNavigate()
+
+    const handleClick = () => {
+        navigate(`/townhall/tasks/${task.id}`)
+    }
+
     return (
-        <div className="flex flex-row justify-between items-center bg-slate-800 shadow-md rounded p-5">
+        <div
+            onClick={handleClick}
+            className={
+                'flex flex-row justify-between items-center ' +
+                'bg-slate-800 shadow-md rounded p-5 cursor-pointer hover:opacity-80'
+            }
+        >
             <div className={'flex flex-row items-center space-x-5'}>
                 {!isToReview ? (
                     <div

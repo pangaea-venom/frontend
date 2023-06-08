@@ -19,6 +19,7 @@ export const CreateTaskDialog = ({ open, onClose }: CreateTaskDialogProps) => {
 
     const setLoading = useAccountStore((state) => state.setLoading)
 
+    const setAccount = useAccountStore((state) => state.setAccount)
     const daoContract = useAccountStore((state) => state.daoContract)
     const address = useAccountStore((state) => state.address)
 
@@ -51,6 +52,11 @@ export const CreateTaskDialog = ({ open, onClose }: CreateTaskDialogProps) => {
                 from: address,
                 amount: sendVal,
             })
+
+        const user = await daoContract.methods
+            .getMember({ member: address })
+            .call()
+        setAccount(user.value0)
 
         setLoading(false)
         toast.success('Task created successfully')

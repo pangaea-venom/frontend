@@ -22,6 +22,13 @@ export const TaskStatusMap = {
     '1': TaskStatus.InReview,
 }
 
+export interface Comment {
+    id: number
+    comment: string
+    postTime: string
+    commenter: Address
+}
+
 export interface Task {
     id: number
     title: string

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type KeyboardEvent } from 'react'
+import React, { useEffect, useState, type KeyboardEvent, useRef } from 'react'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -7,12 +7,15 @@ import { VenomLabel } from 'src/components/VenomLabel'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { Username } from 'src/components/Username'
 import { toDate, toNano } from 'src/util'
-import { Comment } from 'src/components/Comment'
+import { CommentBox } from 'src/components/CommentBox'
 import { toast } from 'react-toastify'
 import { type Address } from 'everscale-inpage-provider'
+import moment from 'moment'
 
 export const TaskTemplate = () => {
     const { taskId } = useParams()
+    const [comment, setComment] = useState('')
+    const commentRef = useRef<HTMLTextAreaElement>(null)
 
     const [task, setTask] = useState<Task | undefined>(undefined)
     const [selectedAssignee, setSelectedAssignee] = useState<
@@ -27,6 +30,7 @@ export const TaskTemplate = () => {
     const address = useAccountStore((state) => state.address)
     const setGlobalTask = useAccountStore((state) => state.setTask)
     const setLoading = useAccountStore((state) => state.setLoading)
+    const setAccount = useAccountStore((state) => state.setAccount)
 
     const updateTask = async () => {
         if (!daoContract) return
@@ -59,20 +63,31 @@ export const TaskTemplate = () => {
             ...value0,
             id: Number(taskId),
         }
+
+        const user = await daoContract.methods
+            .getMember({ member: address })
+            .call()
+        setAccount(user.value0)
+
         setTask(newTask)
         setGlobalTask(Number(taskId), newTask)
         setLoading(false)
     }
 
-    const addComment = async (message: string) => {
+    const addComment = async () => {
         if (!daoContract || !address) return
+
+        if (comment.length < 140) {
+            toast.error('Comment must be at least 140 characters long')
+            return
+        }
 
         setLoading(true)
 
         const amount = toNano(1)
 
         await daoContract.methods
-            .addComment({ taskID: Number(taskId), message })
+            .addComment({ taskID: Number(taskId), message: comment })
             .send({
                 from: address,
                 amount,
@@ -87,14 +102,16 @@ export const TaskTemplate = () => {
         }
         setTask(newTask)
         setGlobalTask(Number(taskId), newTask)
+        if (commentRef.current) {
+            commentRef.current.value = ''
+            setComment('')
+        }
         setLoading(false)
     }
 
     const handleSubmit = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-        let { value } = e.target as HTMLTextAreaElement
-        if (e.key === 'Enter' && !!value.length) {
-            addComment(value)
-            value = ''
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            addComment()
         }
     }
 
@@ -109,6 +126,11 @@ export const TaskTemplate = () => {
             from: address,
             amount,
         })
+
+        const user = await daoContract.methods
+            .getMember({ member: address })
+            .call()
+        setAccount(user.value0)
 
         setGlobalTask(Number(taskId), undefined)
         toast.success('Task cancelled successfully')
@@ -132,10 +154,12 @@ export const TaskTemplate = () => {
         const { value0 } = await daoContract.methods
             .getTask({ taskID: Number(taskId) })
             .call()
+
         const newTask = {
             ...value0,
             id: Number(taskId),
         }
+
         setTask(newTask)
         setGlobalTask(Number(taskId), newTask)
         setLoading(false)
@@ -168,6 +192,8 @@ export const TaskTemplate = () => {
 
     const isMine = task.owner.equals(address)
 
+    const isExpired = toDate(task.endTime) < new Date()
+
     return (
         <div className={'container mx-auto flex flex-col mt-7'}>
             <div className={'flex flex-row w-full space-x-8 pb-32'}>
@@ -183,6 +209,7 @@ export const TaskTemplate = () => {
                         {!isMine ? (
                             <button
                                 onClick={handleJoin}
+                                disabled={isJoined}
                                 className={`text-[16px] leading-[20px] 
                                 ${
                                     isJoined
@@ -233,26 +260,74 @@ export const TaskTemplate = () => {
                                     'text-[12px] leading-[15px] text-slate-500 ml-2.5'
                                 }
                             >
-                                1 day ago
+                                {moment(toDate(task.startTime)).fromNow()}
                             </p>
                         </div>
                         {task.comments.map((comment, index) => (
-                            <Comment commentId={Number(comment)} key={index} />
+                            <CommentBox
+                                commentId={Number(comment)}
+                                key={index}
+                            />
                         ))}
-                        <div className={'flex flex-row space-x-3'}>
-                            <div
-                                className={
-                                    'rounded-full w-[28px] h-[28px] border border-slate-50 bg-[#5A4CB0]'
-                                }
-                            />
-                            <textarea
-                                placeholder={'Write a comment...'}
-                                onKeyDown={handleSubmit}
-                                className={
-                                    'appearance-none w-full bg-slate-700 rounded-lg text-slate-200 text-[14px] leading-[17px] p-3'
-                                }
-                            />
-                        </div>
+                        {!isExpired ? (
+                            <div className={'flex flex-row space-x-3'}>
+                                <div
+                                    className={
+                                        'rounded-full w-[28px] h-[28px] border border-slate-50 bg-[#5A4CB0]'
+                                    }
+                                />
+                                <div
+                                    onClick={() => {
+                                        if (!isJoined) {
+                                            toast.error(
+                                                'You need to join the task to comment'
+                                            )
+                                        }
+                                    }}
+                                    className={'relative w-full'}
+                                >
+                                    <textarea
+                                        disabled={!isJoined}
+                                        onChange={(e) => {
+                                            setComment(e.target.value)
+                                        }}
+                                        ref={commentRef}
+                                        placeholder={'Write a comment...'}
+                                        onKeyDown={handleSubmit}
+                                        rows={4}
+                                        className={
+                                            'appearance-none w-full bg-slate-700 rounded-lg text-slate-200 text-[14px] leading-[17px] p-3'
+                                        }
+                                    />
+                                    <button
+                                        disabled={!isJoined}
+                                        onClick={addComment}
+                                        className={
+                                            'absolute right-3 bottom-3 px-3 py-1 rounded border' +
+                                            ' border-slate-300 bg-slate-700 text-[12px] leading-[15px]'
+                                        }
+                                    >
+                                        Comment
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={'flex flex-row space-x-3'}>
+                                <div
+                                    className={
+                                        'rounded-full w-[28px] h-[28px] border border-slate-50 bg-[#5A4CB0]'
+                                    }
+                                />
+                                <div
+                                    className={
+                                        'w-full bg-slate-700 rounded-lg text-slate-200 text-[14px] leading-[17px] p-3'
+                                    }
+                                >
+                                    Due to the task being expired, you can no
+                                    longer comment on it.
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div
@@ -272,9 +347,7 @@ export const TaskTemplate = () => {
                                 status={TaskStatusMap[task.status]}
                             />
                         </div>
-                        {isMine &&
-                        task.status === '0' &&
-                        toDate(task.endTime) < new Date() ? (
+                        {isMine && task.status === '0' && isExpired ? (
                             <button
                                 onClick={startReview}
                                 className={`text-[14px] leading-[17px] 
@@ -444,6 +517,7 @@ export const TaskTemplate = () => {
                             </div>
                             <button
                                 onClick={finishReview}
+                                disabled={!selectedAssignee}
                                 className={`text-[16px] leading-[20px] 
                                             text-sky-50 bg-sky-500
                                 font-medium py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed`}

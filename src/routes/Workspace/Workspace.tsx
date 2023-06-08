@@ -3,17 +3,45 @@ import { Tabs } from 'src/components/Tabs'
 import { Outlet, useMatch, useNavigate } from 'react-router-dom'
 import { Profile } from 'src/components/Workspace/Profile'
 import { VenomLabel } from 'src/components/VenomLabel'
-import { numberWithCommas } from 'src/util'
+import { numberWithCommas, toNano } from 'src/util'
 import { useAccountStore } from 'src/modules/AccountStore'
+import { toast } from 'react-toastify'
 
 export const Workspace = () => {
     const match = useMatch('/workspace/:activeName/*')
     const activeName = match?.params.activeName
 
+    const setLoading = useAccountStore((state) => state.setLoading)
+
     const navigate = useNavigate()
+
+    const daoContract = useAccountStore((state) => state.daoContract)
+    const address = useAccountStore((state) => state.address)
+    const setAccount = useAccountStore((state) => state.setAccount)
 
     const handleClick = (activeName: string) => {
         navigate(`/workspace/${activeName}`)
+    }
+
+    const claimBounty = async () => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+
+        const amount = toNano(1)
+
+        await daoContract.methods.claimBounty().send({
+            from: address,
+            amount,
+        })
+
+        const user = await daoContract.methods
+            .getMember({ member: address })
+            .call()
+        setAccount(user.value0)
+
+        setLoading(false)
+        toast.success('Claimed bounty successfully')
     }
 
     const balance = useAccountStore((state) => state.balance)
@@ -61,6 +89,7 @@ export const Workspace = () => {
                     </div>
                     <button
                         disabled={account?.earned === '0'}
+                        onClick={claimBounty}
                         className={
                             'bg-sky-500 rounded py-2 text-sky-50 text-[14px] ' +
                             'leading-[18px] font-medium w-full disabled:bg-slate-700 disabled:text-slate-500'

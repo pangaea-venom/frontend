@@ -16,7 +16,7 @@ export const Assigned = () => {
     const updateTasks = () => {
         if (!account) return
 
-        account.createdTasks.forEach(async (task) => {
+        account.appliedTasks.forEach(async (task) => {
             const taskData = await getTask(Number(task))
             // @ts-ignore
             if (taskIds[task]) return
