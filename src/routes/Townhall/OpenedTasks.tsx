@@ -19,10 +19,11 @@ export const OpenedTasks = () => {
             const taskId = numOfTasks - index
             const taskData = await getTask(taskId)
 
-            // @ts-ignore
             if (
+                // @ts-ignore
                 taskIds[taskId] ||
                 taskData?.status === '3' ||
+                // @ts-ignore
                 toDate(taskData?.endTime) < new Date()
             )
                 return

@@ -267,8 +267,8 @@ export const TaskTemplate = () => {
                             >
                                 Status
                             </p>
-                            {/* @ts-ignore */}
                             <TaskStatusLabel
+                                /* @ts-ignore */
                                 status={TaskStatusMap[task.status]}
                             />
                         </div>
