@@ -1,38 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { type Proposal, ProposalStatusMap } from 'src/types/proposal'
 import { ProposalStatusLabel } from 'src/components/ProposalStatusLabel'
 import { useNavigate } from 'react-router-dom'
-import { useAccountStore } from 'src/modules/AccountStore'
 import { toDateString } from 'src/util'
 
 interface ProposalListItemProps {
-    proposalId: number
+    proposal: Proposal
     isMine?: boolean
 }
 
 export const ProposalListItem = ({
-    proposalId,
+    proposal,
     isMine,
 }: ProposalListItemProps) => {
     const navigate = useNavigate()
-
-    const [proposal, setProposal] = useState<Proposal | undefined>(undefined)
-
-    const getProposal = useAccountStore((state) => state.getProposal)
-    const daoContract = useAccountStore((state) => state.daoContract)
-
-    const updateProposal = async () => {
-        const proposal = await getProposal(proposalId)
-        setProposal(proposal)
-    }
-
-    useEffect(() => {
-        if (!daoContract) return
-
-        updateProposal()
-    }, [])
-
-    if (!proposal) return null
 
     const handleClick = (index: number) => {
         navigate(`/townhall/proposals/${index}`)

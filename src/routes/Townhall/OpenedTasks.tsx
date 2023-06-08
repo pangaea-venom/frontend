@@ -44,9 +44,13 @@ export const OpenedTasks = () => {
 
     return (
         <div className={'grid grid-cols-3 gap-x-5 gap-y-4 w-full'}>
-            {tasks.map((task, index) => (
-                <TaskBox key={index} task={task} />
-            ))}
+            {tasks.length ? (
+                tasks.map((task, index) => <TaskBox key={index} task={task} />)
+            ) : (
+                <div className={'col-span-3 text-center text-gray-400'}>
+                    No tasks to show
+                </div>
+            )}
         </div>
     )
 }

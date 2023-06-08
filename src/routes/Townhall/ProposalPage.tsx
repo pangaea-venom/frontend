@@ -3,29 +3,29 @@ import { ProposalListItem } from 'src/components/ProposalListItem'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { type Proposal } from 'src/types/proposal'
 
-export const MyProposal = () => {
+export const ProposalPage = () => {
+    const numOfProposals = useAccountStore((state) => state.numOfProposals)
+
     const [proposals, setProposals] = React.useState<Proposal[]>([])
     const [proposalIds, setProposalIds] = React.useState({})
 
-    const account = useAccountStore((state) => state.account)
     const daoContract = useAccountStore((state) => state.daoContract)
 
     const getProposal = useAccountStore((state) => state.getProposal)
 
     const updateProposals = () => {
-        if (!account) return
+        Array.from({ length: numOfProposals }).forEach(async (_, index) => {
+            const proposalId = numOfProposals - index
+            const proposalData = await getProposal(proposalId)
 
-        account.createdProposals.forEach(async (proposal) => {
-            const proposalData = await getProposal(Number(proposal))
             if (
                 // @ts-ignore
-                proposalIds[proposal]
+                proposalIds[proposalId]
             )
                 return
-
             setProposalIds((prev) => ({
                 ...prev,
-                [proposal]: true,
+                [proposalId]: true,
             }))
             // @ts-ignore
             setProposals((prev) => [...prev, proposalData])
@@ -33,16 +33,20 @@ export const MyProposal = () => {
     }
 
     React.useEffect(() => {
-        if (!account || !daoContract) return
+        if (!daoContract || !numOfProposals) return
 
         updateProposals()
-    }, [account, daoContract])
+    }, [daoContract, numOfProposals])
 
     return (
-        <div className="flex flex-col space-y-2">
-            {proposals.map((proposal, index) => (
-                <ProposalListItem key={index} isMine proposal={proposal} />
-            ))}
+        <div className={'flex flex-col space-y-2'}>
+            {proposals.length ? (
+                proposals.map((proposal, index) => (
+                    <ProposalListItem key={index} proposal={proposal} />
+                ))
+            ) : (
+                <div className={'text-center text-gray-500'}>No proposals</div>
+            )}
         </div>
     )
 }

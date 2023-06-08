@@ -40,10 +40,16 @@ export const ToReview = () => {
 
     return (
         <div className="flex flex-col space-y-3">
-            {tasks.map((task, index) => (
-                // eslint-disable-next-line
+            {tasks.length ? (
+                tasks.map((task, index) => (
+                    // eslint-disable-next-line
                 <TaskListItem key={index} isToReview task={task} />
-            ))}
+                ))
+            ) : (
+                <div className="text-center text-gray-500">
+                    No tasks to review
+                </div>
+            )}
         </div>
     )
 }

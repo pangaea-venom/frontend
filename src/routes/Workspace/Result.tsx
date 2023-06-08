@@ -40,9 +40,15 @@ export const Result = () => {
 
     return (
         <div className="flex flex-col space-y-3">
-            {tasks.map((task, index) => (
-                <TaskListItem key={index} task={task} />
-            ))}
+            {tasks.length ? (
+                tasks.map((task, index) => (
+                    <TaskListItem key={index} task={task} />
+                ))
+            ) : (
+                <div className="text-center text-gray-500">
+                    No tasks submitted
+                </div>
+            )}
         </div>
     )
 }

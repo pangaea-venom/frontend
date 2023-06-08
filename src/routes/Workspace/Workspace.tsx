@@ -59,7 +59,7 @@ export const Workspace = () => {
             value: 'my-tasks',
         },
         {
-            label: 'My Proposal',
+            label: 'My ProposalPage',
             value: 'my-proposal',
         },
     ]

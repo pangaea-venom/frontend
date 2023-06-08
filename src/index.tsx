@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ErrorPage } from 'src/routes/App/ErrorPage'
 import { Townhall } from 'src/routes/Townhall/Townhall'
 import { OpenedTasks } from 'src/routes/Townhall/OpenedTasks'
-import { Proposal } from 'src/routes/Townhall/Proposal'
+import { ProposalPage } from 'src/routes/Townhall/ProposalPage'
 import { Workspace } from 'src/routes/Workspace/Workspace'
 import { MyTasks } from 'src/routes/Workspace/MyTasks'
 import { Assigned } from 'src/routes/Workspace/Assigned'
@@ -46,7 +46,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'proposal',
-                        element: <Proposal />,
+                        element: <ProposalPage />,
                     },
                 ],
             },
