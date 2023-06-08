@@ -40,7 +40,7 @@ interface AccountStore {
     numOfTasks: number
     setNumOfTasks: (numOfTasks: number) => void
     taskMap: Map<number, Task>
-    setTask: (id: number, task: Task) => void
+    setTask: (id: number, task: Task | undefined) => void
     getTask: (id: number) => Promise<Task | undefined>
     memberMap: Map<Address, Account>
     setMember: (address: Address, member: Account) => void
@@ -89,7 +89,8 @@ export const useAccountStore = create<AccountStore>()((set, get) => ({
     setTask: (id, task) => {
         set((state) => {
             const newTaskMap = new Map(state.taskMap)
-            newTaskMap.set(id, task)
+            if (task) newTaskMap.set(id, task)
+            else newTaskMap.delete(id)
             return { taskMap: newTaskMap }
         })
     },

@@ -1,38 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { type Task, TaskStatusMap } from 'src/types/task'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { VenomLabel } from 'src/components/VenomLabel'
 import { useNavigate } from 'react-router-dom'
-import { useAccountStore } from 'src/modules/AccountStore'
 
 interface TaskBoxProps {
-    taskId: number
+    task: Task
 }
 
-export const TaskBox = ({ taskId }: TaskBoxProps) => {
+export const TaskBox = ({ task }: TaskBoxProps) => {
     const navigate = useNavigate()
-
-    const [task, setTask] = useState<Task | undefined>(undefined)
-
-    const daoContract = useAccountStore((state) => state.daoContract)
-    const getTask = useAccountStore((state) => state.getTask)
-
-    const updateTask = async () => {
-        if (!daoContract) return
-
-        const newTask = await getTask(Number(taskId))
-        setTask(newTask)
-    }
-
-    useEffect(() => {
-        if (!daoContract) return
-
-        updateTask()
-    }, [daoContract])
-
-    if (!task) return null
 
     const handleClick = () => {
         navigate(`/townhall/tasks/${task.id}`)

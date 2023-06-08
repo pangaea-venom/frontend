@@ -1,18 +1,21 @@
 import React, { useEffect, useState, type KeyboardEvent } from 'react'
 import { TaskStatusLabel } from 'src/components/TaskStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { type Task, TaskStatusMap } from 'src/types/task'
 import { VenomLabel } from 'src/components/VenomLabel'
 import { useAccountStore } from 'src/modules/AccountStore'
 import { Username } from 'src/components/Username'
 import { toNano } from 'src/util'
 import { Comment } from 'src/components/Comment'
+import { toast } from 'react-toastify'
 
 export const TaskTemplate = () => {
     const { taskId } = useParams()
 
     const [task, setTask] = useState<Task | undefined>(undefined)
+
+    const navigate = useNavigate()
 
     const daoContract = useAccountStore((state) => state.daoContract)
     const getTask = useAccountStore((state) => state.getTask)
@@ -90,11 +93,30 @@ export const TaskTemplate = () => {
         }
     }
 
+    const cancelTask = async () => {
+        if (!daoContract || !address) return
+
+        setLoading(true)
+
+        const amount = toNano(2)
+
+        await daoContract.methods.cancelTask({ taskID: Number(taskId) }).send({
+            from: address,
+            amount,
+        })
+
+        setGlobalTask(Number(taskId), undefined)
+        toast.success('Task cancelled successfully')
+        navigate('/', { replace: true })
+
+        setLoading(false)
+    }
+
     if (!task || !address) return null
 
-    const isJoined =
-        task.assignees.some((assignee) => assignee.equals(address)) ||
-        task.owner.equals(address)
+    const isJoined = task.assignees.some((assignee) => assignee.equals(address))
+
+    const isMine = task.owner.equals(address)
 
     return (
         <div className={'container mx-auto flex flex-col mt-7'}>
@@ -108,18 +130,29 @@ export const TaskTemplate = () => {
                         >
                             {task.title}
                         </p>
-                        <button
-                            onClick={handleJoin}
-                            className={`text-[16px] leading-[20px] 
+                        {!isMine ? (
+                            <button
+                                onClick={handleJoin}
+                                className={`text-[16px] leading-[20px] 
                                 ${
                                     isJoined
                                         ? 'bg-transparent border border-slate-400 text-slate-400'
                                         : 'text-sky-50 bg-sky-500'
                                 } 
                                 font-medium py-2 px-4 rounded`}
-                        >
-                            {isJoined ? 'Joined' : 'Join'}
-                        </button>
+                            >
+                                {isJoined ? 'Joined' : 'Join'}
+                            </button>
+                        ) : (
+                            <button
+                                onClick={cancelTask}
+                                className={`text-[16px] leading-[20px] 
+                                            text-sky-50 bg-sky-500
+                                font-medium py-2 px-4 rounded`}
+                            >
+                                Cancel
+                            </button>
+                        )}
                     </div>
                     <p className={'text-[16px] leading-[20px] text-slate-200'}>
                         {task.description}
@@ -184,31 +217,35 @@ export const TaskTemplate = () => {
                         {/* @ts-ignore */}
                         <TaskStatusLabel status={TaskStatusMap[task.status]} />
                     </div>
-                    <div className={'flex flex-row space-x-2 items-center'}>
-                        <p
-                            className={
-                                'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
-                            }
-                        >
-                            Owner
-                        </p>
-                        <div
-                            className={'flex flex-row items-center space-x-1.5'}
-                        >
-                            <div
-                                className={
-                                    'rounded-full w-[16px] h-[16px] bg-red-400'
-                                }
-                            />
+                    {!isMine ? (
+                        <div className={'flex flex-row space-x-2 items-center'}>
                             <p
                                 className={
-                                    'text-slate-50 text-[14px] leading-[18px]'
+                                    'text-slate-400 text-[14px] leading-[17px] py-[3px] pl-1 w-[80px]'
                                 }
                             >
-                                <Username address={task.owner} />
+                                Owner
                             </p>
+                            <div
+                                className={
+                                    'flex flex-row items-center space-x-1.5'
+                                }
+                            >
+                                <div
+                                    className={
+                                        'rounded-full w-[16px] h-[16px] bg-red-400'
+                                    }
+                                />
+                                <p
+                                    className={
+                                        'text-slate-50 text-[14px] leading-[18px]'
+                                    }
+                                >
+                                    <Username address={task.owner} />
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    ) : null}
                     <div className={'flex flex-row space-x-2 items-center'}>
                         <p
                             className={
