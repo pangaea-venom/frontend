@@ -4,7 +4,7 @@ import { TaskResultStatusLabel } from 'src/components/TaskResultStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { useNavigate } from 'react-router-dom'
-import {useAccountStore} from "src/modules/AccountStore";
+import { useAccountStore } from 'src/modules/AccountStore'
 
 interface TaskListItemProps {
     task: Task
@@ -35,7 +35,11 @@ export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
                         }
                     >
                         <TaskResultStatusLabel
-                            status={task.winner === address ? TaskResultStatus.Accepted : TaskResultStatus.Rejected}
+                            status={
+                                task.winner === address
+                                    ? TaskResultStatus.Accepted
+                                    : TaskResultStatus.Rejected
+                            }
                         />
                     </div>
                 ) : null}
