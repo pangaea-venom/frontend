@@ -75,7 +75,7 @@ export const ProposalTemplate = () => {
                     .castVoteWithPower({
                         proposalID: Number(proposalId),
                         val,
-                        power: power - 1,
+                        power,
                     })
                     .send({
                         from: address,
@@ -287,10 +287,11 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-green-300 rounded`}
                                         style={{
-                                            width: `${
-                                                yesCount /
-                                                Math.max(1, totalCount)
-                                            }%`,
+                                            width: `${Math.round(
+                                                (yesCount /
+                                                    Math.max(totalCount, 1)) *
+                                                    100
+                                            )}%`,
                                         }}
                                     />
                                 </div>
@@ -299,7 +300,11 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    {yesCount / Math.max(1, totalCount)}%
+                                    {Math.round(
+                                        (yesCount / Math.max(totalCount, 1)) *
+                                            100
+                                    )}
+                                    %
                                 </p>
                             </div>
                         </div>
@@ -337,10 +342,11 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-red-400 rounded`}
                                         style={{
-                                            width: `${
-                                                noCount /
-                                                Math.max(1, totalCount)
-                                            }%`,
+                                            width: `${Math.round(
+                                                (noCount /
+                                                    Math.max(totalCount, 1)) *
+                                                    100
+                                            )}%`,
                                         }}
                                     />
                                 </div>
@@ -349,7 +355,11 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    {noCount / Math.max(1, totalCount)}%
+                                    {Math.round(
+                                        (noCount / Math.max(totalCount, 1)) *
+                                            100
+                                    )}
+                                    %
                                 </p>
                             </div>
                         </div>
@@ -387,10 +397,11 @@ export const ProposalTemplate = () => {
                                     <div
                                         className={`h-[8px] bg-slate-400 rounded`}
                                         style={{
-                                            width: `${
-                                                abstainCount /
-                                                Math.max(1, totalCount)
-                                            }%`,
+                                            width: `${Math.round(
+                                                (abstainCount /
+                                                    Math.max(totalCount, 1)) *
+                                                    100
+                                            )}%`,
                                         }}
                                     />
                                 </div>
@@ -399,7 +410,12 @@ export const ProposalTemplate = () => {
                                         'text-[14px] leading-[18px] text-slate-300 font-semibold'
                                     }
                                 >
-                                    {abstainCount / Math.max(1, totalCount)}%
+                                    {Math.round(
+                                        (abstainCount /
+                                            Math.max(totalCount, 1)) *
+                                            100
+                                    )}
+                                    %
                                 </p>
                             </div>
                         </div>

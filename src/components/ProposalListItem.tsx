@@ -112,10 +112,11 @@ export const ProposalListItem = ({
                                     'text-[12px] leading-[15px] text-slate-500 font-medium'
                                 }
                             >
+                                (
                                 {Math.round(
                                     (noCount / Math.max(totalCount, 1)) * 100
                                 )}
-                                %
+                                ) %
                             </p>
                         </div>
                         <div className={'h-[4px] bg-slate-600 w-[100px]'}>
