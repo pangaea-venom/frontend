@@ -49,7 +49,7 @@ export const TaskTemplate = () => {
         if (!daoContract || !address) return
 
         setLoading(true)
-        const amount = toNano(1)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods
@@ -94,7 +94,7 @@ export const TaskTemplate = () => {
 
         setLoading(true)
 
-        const amount = toNano(1)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods
@@ -137,7 +137,7 @@ export const TaskTemplate = () => {
 
         setLoading(true)
 
-        const amount = toNano(2)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods
@@ -168,7 +168,7 @@ export const TaskTemplate = () => {
 
         setLoading(true)
 
-        const amount = toNano(1)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods
@@ -203,7 +203,7 @@ export const TaskTemplate = () => {
 
         setLoading(true)
 
-        const amount = toNano(1)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods

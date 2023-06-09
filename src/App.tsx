@@ -49,7 +49,7 @@ function App() {
 
         setLoading(true)
 
-        const amount = toNano(2)
+        const amount = toNano(21.1)
 
         try {
             await daoContract.methods.joinDao({ name: username }).send({

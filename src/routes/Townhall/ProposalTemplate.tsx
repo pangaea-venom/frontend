@@ -62,7 +62,7 @@ export const ProposalTemplate = () => {
 
         try {
             if (power === 1) {
-                const amount = toNano(1)
+                const amount = toNano(0.1)
                 await daoContract.methods
                     .castVote({ proposalID: Number(proposalId), val })
                     .send({
@@ -70,7 +70,7 @@ export const ProposalTemplate = () => {
                         amount,
                     })
             } else {
-                const amount = toNano(power)
+                const amount = toNano(power + 1.1)
                 await daoContract.methods
                     .castVoteWithPower({
                         proposalID: Number(proposalId),

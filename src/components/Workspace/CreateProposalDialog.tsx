@@ -39,7 +39,7 @@ export const CreateProposalDialog = ({
 
         setLoading(true)
 
-        const sendVal = toNano(1)
+        const sendVal = toNano(0.1)
 
         const duration = Number(input.duration) * 60 * 60 * 24
 

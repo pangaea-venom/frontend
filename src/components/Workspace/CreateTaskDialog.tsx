@@ -38,7 +38,7 @@ export const CreateTaskDialog = ({ open, onClose }: CreateTaskDialogProps) => {
         setLoading(true)
 
         const bounty = toNano(Number(input.points))
-        const sendVal = toNano(Number(input.points) + 2)
+        const sendVal = toNano(Number(input.points) + 1.1)
 
         const duration = Number(input.duration) * 60 * 60 * 24
 

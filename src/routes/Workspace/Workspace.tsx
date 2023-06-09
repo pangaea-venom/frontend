@@ -28,7 +28,7 @@ export const Workspace = () => {
 
         setLoading(true)
 
-        const amount = toNano(1)
+        const amount = toNano(0.1)
 
         try {
             await daoContract.methods.claimBounty().send({
