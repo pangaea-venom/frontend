@@ -4,6 +4,7 @@ import { TaskResultStatusLabel } from 'src/components/TaskResultStatusLabel'
 import { DueDateLabel } from 'src/components/DueDateLabel'
 import { MemberAmountLabel } from 'src/components/MemberAmountLabel'
 import { useNavigate } from 'react-router-dom'
+import {useAccountStore} from "src/modules/AccountStore";
 
 interface TaskListItemProps {
     task: Task
@@ -12,6 +13,7 @@ interface TaskListItemProps {
 
 export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
     const navigate = useNavigate()
+    const address = useAccountStore((state) => state.address)
 
     const handleClick = () => {
         navigate(`/townhall/tasks/${task.id}`)
@@ -33,7 +35,7 @@ export const TaskListItem = ({ task, isToReview }: TaskListItemProps) => {
                         }
                     >
                         <TaskResultStatusLabel
-                            status={TaskResultStatus.Rejected}
+                            status={task.winner === address ? TaskResultStatus.Accepted : TaskResultStatus.Rejected}
                         />
                     </div>
                 ) : null}

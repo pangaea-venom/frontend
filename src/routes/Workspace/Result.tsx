@@ -19,7 +19,9 @@ export const Result = () => {
             const taskData = await getTask(Number(task))
             if (
                 // @ts-ignore
-                taskIds[task]
+                taskIds[task] ||
+                taskData?.status === '0' ||
+                taskData?.status === '1'
             )
                 return
 
